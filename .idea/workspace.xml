@@ -1,22 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e1bc8c20-8591-4245-bb57-0db90176bfb1" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/_includes/footer.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/_includes/header.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/css/bootstrap.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/js/LICENSE" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/js/bootstrap.min.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/js/d3.min.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/js/ie-emulation-modes-warning.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/js/ie10-viewport-bug-workaround.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/js/jquery.min.js" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/index.php" afterPath="$PROJECT_DIR$/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/eeros-website-repo.iml" afterPath="$PROJECT_DIR$/.idea/eeros-website-repo.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/graph.json" afterPath="$PROJECT_DIR$/data/graph.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/network.js" afterPath="$PROJECT_DIR$/js/network.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="e1bc8c20-8591-4245-bb57-0db90176bfb1" name="Default" comment="" />
     <ignored path="eeros-website-repo.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
@@ -50,8 +35,8 @@
       <file leaf-file-name="node_server.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/node_server.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.673774">
-              <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.6929638">
+              <caret line="56" column="46" selection-start-line="56" selection-start-column="46" selection-end-line="56" selection-end-column="46" />
               <folding>
                 <element signature="e#0#40#0" expanded="false" />
               </folding>
@@ -696,8 +681,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/node_server.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.673774">
-          <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.6929638">
+          <caret line="56" column="46" selection-start-line="56" selection-start-column="46" selection-end-line="56" selection-end-column="46" />
           <folding>
             <element signature="e#0#40#0" expanded="false" />
           </folding>
