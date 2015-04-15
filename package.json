@@ -1,0 +1,19 @@
+{
+  "name": "eeros-community-analysis-website",
+  "version": "0.0.0",
+  "description": "community analysis website",
+  "main": "node_server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nathan Hughes",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "bootstrap": "~3.3.4",
+    "express": "~4.12.3",
+    "d3": "~3.5.5",
+    "jquery": "~2.1.3",
+    "requests": "~0.1.1",
+    "fs": "0.0.2"
+  }
+}
