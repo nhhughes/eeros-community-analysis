@@ -64,25 +64,34 @@
 
 </style>
 
+
+
 <body>
+<?php
+// $result = json_encode(file_get_contents("./data/eeros-framework:actors"));
+// echo($result);
+//?>
+
 <script>
 var query_results = <?php
 
-$ch = curl_init("http://fourbanger.wpi.edu/~nhhughes:7474/db/data/transaction/commit");
-//$ch = curl_init("http://localhost:7474/db/data/transaction/commit");
-$query = ['statements' => [['statement' => 'MATCH (s:`eeros-framework:actor`)-[r]-(t) RETURN s, r, t']]];
-
-curl_setopt($ch,CURLOPT_POST, true);
-curl_setopt($ch,CURLOPT_POSTFIELDS, json_encode($query));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERPWD, "neo4j:eeros");
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:
-application/json'));
-
-$result = curl_exec($ch);
-curl_close($ch);
-
+$result = file_get_contents("./data/eeros-framework:actors");
 echo(json_encode($result));
+//$ch = curl_init("http://fourbanger.wpi.edu/~nhhughes:7474/db/data/transaction/commit");
+////$ch = curl_init("http://localhost:7474/db/data/transaction/commit");
+//$query = ['statements' => [['statement' => 'MATCH (s:`eeros-framework:actor`)-[r]-(t) RETURN s, r, t']]];
+//
+//curl_setopt($ch,CURLOPT_POST, true);
+//curl_setopt($ch,CURLOPT_POSTFIELDS, json_encode($query));
+//curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//curl_setopt($ch, CURLOPT_USERPWD, "neo4j:eeros");
+//curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:
+//application/json'));
+//
+//$result = curl_exec($ch);
+//curl_close($ch);
+
+
 
 ?>;
 

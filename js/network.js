@@ -14,7 +14,7 @@ var stored_edge_data;
 function register_times(edge_data) {
     edge_data.forEach(function (d) {
 
-        var start = d.starts;
+        var start = d.start;
         if (start.length > 0) {
 
             if ((start_time > start[0] || start_time == -1) && start[0] != -1) {
@@ -34,8 +34,8 @@ function register_times(edge_data) {
 
 function get_edges(time) {
     return stored_edge_data.filter(function (item) {
-        for (var i = 0; i < item.starts.length; i++) {
-            if (item.starts[i] < time && time < item.ends[i]) {
+        for (var i = 0; i < item.start.length; i++) {
+            if (item.start[i] < time && time < item.ends[i]) {
                 return true;
             }
         }
@@ -132,54 +132,56 @@ function update_links(svg, data) {
     // console.log(svg.selectAll('.link'));
     var edges = svg.selectAll('.link')
         .data(data, function (d) {
-            return {"source": d.source.name, "target": d.target.name};
+            return d.source.name + ":" + d.target.name;
         });
-    
-    // console.log(edges.enter());
-    // edges 
-    //     .enter()
-    //     .attr('opacity', function(d) {
-    //         console.log("problem");
-    //         return 1.; });
-    //     // .attr('class', 'link')
-    //     // .attr('weight', 1.0)
-    //     // .attr('x1', function (d) {
-    //     //     return nodes[d.source].cx;
-    //     // })
-    //     // .attr('y1', function (d) {
-    //     //     return nodes[d.source].cy;
-    //     // })
-    //     // .attr('x2', function (d) {
-    //     //     return nodes[d.target].cx;
-    //     // })
-    //     // .attr('y2', function (d) {
-    //     //     return nodes[d.target].cy;
-    //     // });
 
-    // edges
-    //     .exit()
-    //     .attr('opacity', 0.)
-    // edges
-    //     .attr('opacity', 1.)
-    //     // .attr('x1', function (d) {
-    //     //     return d.source.x;
-    //     // })
-    //     // .attr('y1', function (d) {
-    //     //     return d.source.y;
-    //     // })
-    //     // .attr('x2', function (d) {
-    //     //     return d.target.x;
-    //     // })
-    //     // .attr('y2', function (d) {
-    //     //     return d.target.y;
-    //     // });
+
+    edges
+        .enter().append('line')
+        .attr('class', 'link')
+        .attr('weight', 1.0)
+        .attr('x1', function (d) {
+            //console.log(d);
+            return d.source.cx;
+        })
+        .attr('y1', function (d) {
+            return d.source.cy;
+        })
+        .attr('x2', function (d) {
+            return d.target.cx;
+        })
+        .attr('y2', function (d) {
+            return d.target.cy;
+        })
+        .attr('opacity', 1.);
+
+    edges
+         .exit()
+         .attr('opacity', 0.);
+
+    edges
+         .attr('opacity', 1.);
+         // .attr('x1', function (d) {
+         //     return d.source.x;
+         // })
+         // .attr('y1', function (d) {
+         //     return d.source.y;
+         // })
+         // .attr('x2', function (d) {
+         //     return d.target.x;
+         // })
+         // .attr('y2', function (d) {
+         //     return d.target.y;
+         // });
 }
 
 
 function process_links(svg, data, nodes) {
+    //console.log(data);
+    //console.log(nodes);
     var edges = svg.selectAll('.link')
         .data(data, function (d) {
-            return {};
+            return d.source.name + ":" + d.target.name;
         });
        
     edges 
@@ -187,16 +189,17 @@ function process_links(svg, data, nodes) {
         .attr('class', 'link')
         .attr('weight', 1.0)
         .attr('x1', function (d) {
-            return nodes[d.source].cx;
+            //console.log(d);
+            return d.source.cx;
         })
         .attr('y1', function (d) {
-            return nodes[d.source].cy;
+            return d.source.cy;
         })
         .attr('x2', function (d) {
-            return nodes[d.target].cx;
+            return d.target.cx;
         })
         .attr('y2', function (d) {
-            return nodes[d.target].cy;
+            return d.target.cy;
         })
         .attr('opacity', 0.);
 }
@@ -244,7 +247,6 @@ function setup_mouse_handlers(svg) {
         });
 
 }
-
 
 function start_animation(svg, data_node, data_links) {
     var animating = true;
@@ -323,23 +325,32 @@ function start_animation(svg, data_node, data_links) {
     return force;
 }
 
+function fix_edges(edge_data, nodes) {
+       edge_data.forEach(function (d) {
+           d.source = nodes[d.source];
+           d.target = nodes[d.target];
+       });
+        return edge_data;
+}
+
 make_graph = function () {
 
-    var results = get_graph_data(query_results);
-    var node_data = results[0];
-    var edge_data = results[1];
+    var json_data = JSON.parse(query_results);
+    var node_data = json_data.nodes;
+    var edge_data = json_data.links;
 
+    edge_data = fix_edges(edge_data, node_data);
     var svg = d3.select("body").select(".network-display").select('svg')
         .attr('width', width)
         .attr('height', height);
 
     process_links(svg, edge_data, node_data);
-    results = process_nodes(svg, node_data);
+    var nodes = process_nodes(svg, node_data);
 
-    var nodes = results;
     stored_edge_data = edge_data;
     register_times(edge_data);
     draw_nodes(nodes);
     setup_mouse_handlers(svg);
     force_object = start_animation(svg, node_data, edge_data);
+
 };
