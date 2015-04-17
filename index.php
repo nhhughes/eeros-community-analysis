@@ -13,7 +13,7 @@
     <title>Analysis Tool</title>
     
     <script>
-    var width = 960,
+    var width = 921,
     height = 500;
     </script> 
 
@@ -23,20 +23,44 @@
     <script src="./js/d3.min.js"></script>
     <script src="./js/network.js"></script>
     <script src="./js/time_filter.js"></script>
-    
-    
+    <script src="./js/bootstrap.js"></script>
+
+
+    <link rel = "stylesheet" href="./css/bootstrap.css">
     <link rel = "stylesheet" href="./css/jquery-ui.min.css">
-    
+    <link rel = "stylesheet" href="./css/custom.css">
+
     <script> 
     $(function() {    
         $( "#slider" ).slider({
         slide: function(event, ui) {
             filter_time(ui.value);
+
         },
-        max: width
+        max: width,
+        animate: "slow"
     });
     });
     </script>
+
+    <script>
+        $(function() {
+            $( "button" )
+                .button()
+                .click(function( event ) {
+                    console.log("testing");
+                    event.preventDefault();
+                });
+        });
+    </script>
+
+    <script>
+        var query_results = <?php
+            $result = file_get_contents("./data/eeros-framework:actors");
+            echo(json_encode($result));
+        ?>;
+    </script>
+
 
 </head>
 
@@ -64,49 +88,62 @@
 
 </style>
 
-
-
 <body>
-<?php
-// $result = json_encode(file_get_contents("./data/eeros-framework:actors"));
-// echo($result);
-//?>
 
-<script>
-var query_results = <?php
+<div class="container">
+    <div class="row">
+        <div class="network-display panel panel-primary">
+            <div class ="panel-heading">
+                <h1 class="text-center">Community Visualization</h1>
+            </div>
+            <div class ="panel-body">
+                <svg  class="noselect"></svg>
+                <div class="ui-grid-a">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" class="btn btn-default">Left</button>
+                        <button type="button" class="btn btn-default">Middle</button>
+                        <button type="button" class="btn btn-default">Right</button>
+                    </div>
 
-$result = file_get_contents("./data/eeros-framework:actors");
-echo(json_encode($result));
-//$ch = curl_init("http://fourbanger.wpi.edu/~nhhughes:7474/db/data/transaction/commit");
-////$ch = curl_init("http://localhost:7474/db/data/transaction/commit");
-//$query = ['statements' => [['statement' => 'MATCH (s:`eeros-framework:actor`)-[r]-(t) RETURN s, r, t']]];
-//
-//curl_setopt($ch,CURLOPT_POST, true);
-//curl_setopt($ch,CURLOPT_POSTFIELDS, json_encode($query));
-//curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//curl_setopt($ch, CURLOPT_USERPWD, "neo4j:eeros");
-//curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:
-//application/json'));
-//
-//$result = curl_exec($ch);
-//curl_close($ch);
-
-
-
-?>;
-
-</script>
-
-<div class="network-display">
-    <svg class="noselect"></svg>
-    <div id="slider"></div>
+                    <div class="ui-block-a">
+                        <div id="slider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="network-health panel panel-primary">
+            <div class = "panel-heading">
+                <h1 class="text-center">Community Health Metrics</h1>
+            </div>
+            <div class="panel-body">
+                <div id="dropdown"></div>
+                <svg class="noselect"></svg>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="network-health">
-    <svg></svg>
-</div>
+
 
 <script>
     make_graph();
+//    var svg = d3.select("body").select(".network-display").select('svg')
+//        .attr('width', width)
+//        .attr('height', height);
+//
+//    function resize(e)  {
+//
+//        var container = $('#network-display');
+//        width = container.width();
+//        var height = container.height();
+//
+//
+//        svg.attr('width', width);
+//        svg.attr('height', height);
+//        force_object.size([width, height]).resume();
+//    }
+//    window.on('resize', resize);
 </script>
 </body>
 

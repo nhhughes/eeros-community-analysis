@@ -1,6 +1,6 @@
 var filter_time = function(slider_value) {
-	var time = start_time + (slider_value / width * time_range);
-	good_edges = get_edges(time);
+    var time = start_time + (slider_value / width * time_range);
+	var good_edges = get_edges(time);
 	
 	var svg = d3.select("body").select(".network-display").select('svg');
     

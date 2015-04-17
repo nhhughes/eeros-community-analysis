@@ -1,8 +1,6 @@
 var seen = {};
 var coordinates = [0, 0];
 var to_move;
-var width = 960,
-    height = 500;
 var r = width / 50;
 var animationStep = 100;
 var force_object;
@@ -35,7 +33,7 @@ function register_times(edge_data) {
 function get_edges(time) {
     return stored_edge_data.filter(function (item) {
         for (var i = 0; i < item.start.length; i++) {
-            if (item.start[i] < time && time < item.ends[i]) {
+            if (item.start[i] <= time && time <= item.ends[i]) {
                 return true;
             }
         }
@@ -351,6 +349,7 @@ make_graph = function () {
     register_times(edge_data);
     draw_nodes(nodes);
     setup_mouse_handlers(svg);
-    force_object = start_animation(svg, node_data, edge_data);
+    var good_edges = get_edges(start_time);
+    force_object = start_animation(svg, node_data, good_edges);
 
 };
