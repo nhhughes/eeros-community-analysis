@@ -13,7 +13,7 @@
     <title>Analysis Tool</title>
     
     <script>
-    var width = 921,
+    var width = 900,
     height = 500;
     </script> 
 
@@ -24,11 +24,10 @@
     <script src="./js/network.js"></script>
     <script src="./js/time_filter.js"></script>
     <script src="./js/bootstrap.js"></script>
-
+    <script src="./js/health_chart.js"></script>
 
     <link rel = "stylesheet" href="./css/bootstrap.css">
     <link rel = "stylesheet" href="./css/jquery-ui.min.css">
-    <link rel = "stylesheet" href="./css/custom.css">
 
     <script> 
     $(function() {    
@@ -66,6 +65,17 @@
 
 <style>
 
+    .axis text {
+        font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
     .noselect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -86,6 +96,21 @@
         stroke-width: 2px;
     }
 
+    .chart circle {
+        fill: steelblue;
+    }
+
+    .chart rect {
+        fill: steelblue;
+    }
+
+    .chart text {
+        fill: black;
+        font: 10px sans-serif;
+        text-anchor: middle;
+    }
+
+
 </style>
 
 <body>
@@ -100,9 +125,9 @@
                 <svg  class="noselect"></svg>
                 <div class="ui-grid-a">
                     <div class="btn-group" role="group" aria-label="...">
-                        <button type="button" class="btn btn-default">Left</button>
-                        <button type="button" class="btn btn-default">Middle</button>
-                        <button type="button" class="btn btn-default">Right</button>
+                        <button type="button" class="btn btn-primary">Play</button>
+                        <button type="button" class="btn btn-primary">Pause</button>
+                        <button type="button" class="btn btn-primary">Restart</button>
                     </div>
 
                     <div class="ui-block-a">
@@ -118,8 +143,18 @@
                 <h1 class="text-center">Community Health Metrics</h1>
             </div>
             <div class="panel-body">
-                <div id="dropdown"></div>
-                <svg class="noselect"></svg>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        Metric <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Estrada Index</a></li>
+                    </ul>
+                </div>
+                <br>
+                <br>
+                <svg class="noselect chart"></svg>
+
             </div>
         </div>
     </div>
@@ -128,22 +163,7 @@
 
 <script>
     make_graph();
-//    var svg = d3.select("body").select(".network-display").select('svg')
-//        .attr('width', width)
-//        .attr('height', height);
-//
-//    function resize(e)  {
-//
-//        var container = $('#network-display');
-//        width = container.width();
-//        var height = container.height();
-//
-//
-//        svg.attr('width', width);
-//        svg.attr('height', height);
-//        force_object.size([width, height]).resume();
-//    }
-//    window.on('resize', resize);
+    health_chart();
 </script>
 </body>
 

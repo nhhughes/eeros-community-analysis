@@ -1,4 +1,3 @@
-var seen = {};
 var coordinates = [0, 0];
 var to_move;
 var r = width / 50;
@@ -39,40 +38,6 @@ function get_edges(time) {
         }
         return false;
     });
-}
-
-
-function filter_nodes(a) {
-
-    var count = 0;
-    return a.filter(function (item) {
-        if (seen.hasOwnProperty(item.name)) {
-            return false;
-        }
-        else {
-            seen[item.name] = count;
-            count++;
-            return true;
-        }
-    });
-
-}
-
-function get_graph_data(json_data) {
-
-    var node_data = JSON.parse(json_data).results[0].data;
-    var nodes = node_data.map(function (curr, index, array) {
-        return {"name": curr.row[0].name};
-    });
-    nodes = filter_nodes(nodes);
-
-    var edges = node_data.map(function (curr, index, array) {
-        return {"source": seen[curr.row[0].name], "target": seen[curr.row[2].name], "starts": curr.row[1].start, "ends": curr.row[1].ends};
-    });
-    return [nodes, edges];
-
-
-
 }
 
 function process_nodes(svg, data) {
@@ -159,24 +124,12 @@ function update_links(svg, data) {
 
     edges
          .attr('opacity', 1.);
-         // .attr('x1', function (d) {
-         //     return d.source.x;
-         // })
-         // .attr('y1', function (d) {
-         //     return d.source.y;
-         // })
-         // .attr('x2', function (d) {
-         //     return d.target.x;
-         // })
-         // .attr('y2', function (d) {
-         //     return d.target.y;
-         // });
+
 }
 
 
 function process_links(svg, data, nodes) {
-    //console.log(data);
-    //console.log(nodes);
+
     var edges = svg.selectAll('.link')
         .data(data, function (d) {
             return d.source.name + ":" + d.target.name;
@@ -203,7 +156,7 @@ function process_links(svg, data, nodes) {
 }
 
 function draw_nodes(nodes) {
-     var circles = nodes.append('circle')
+     nodes.append('circle')
         .attr('cx', function (d) {
             return d.x;
         })
@@ -213,7 +166,7 @@ function draw_nodes(nodes) {
         .attr("fill", "red")
         .attr('r', r);
 
-    var texts = nodes.append('text')
+    nodes.append('text')
         .attr("x", function (d) {
             return d.x + r;
         })
@@ -221,7 +174,7 @@ function draw_nodes(nodes) {
             return d.y + r;
         })
         .attr("font-family", "sans-serif")
-        .attr("class", "noselect")
+        .attr("class", "noselect name")
         .attr("font-size", "20px")
         .attr("stroke", "black")
         .attr("stroke-width", "0.5")
@@ -230,6 +183,7 @@ function draw_nodes(nodes) {
         .text(function (d) {
             return d.name;
         });
+
 }
 
 function setup_mouse_handlers(svg) {
@@ -237,11 +191,11 @@ function setup_mouse_handlers(svg) {
     svg.selectAll('.node')
         .on('mouseover', function (d) {
             var nodeSelection = d3.select(this).style({opacity: '0.8'});
-            nodeSelection.select("text").style({opacity: '1.0'});
+            nodeSelection.select("text.name").style({opacity: '1.0'});
         })
         .on('mouseout', function (d) {
             var nodeSelection = d3.select(this).style({opacity: '1.0'});
-            nodeSelection.select("text").style({opacity: '0.0'});
+            nodeSelection.select("text.name").style({opacity: '0.0'});
         });
 
 }
@@ -255,7 +209,8 @@ function start_animation(svg, data_node, data_links) {
     var edges = svg.selectAll("line");
     var nodes = svg.selectAll("node");
     var circles = svg.selectAll("circle");
-    var texts = svg.selectAll("text");
+    var texts = svg.selectAll("text.name");
+    var texts2 = svg.selectAll("text.name2");
 
 
     force.nodes(data_node);
@@ -306,6 +261,15 @@ function start_animation(svg, data_node, data_links) {
                 return d.y + r;
             });
 
+        texts2.transition().ease('linear').duration(animationStep)
+            .attr('x', function (d) {
+                return d.x;
+            })
+            .attr('y', function (d) {
+                return d.y + 6;
+            });
+
+
         force.stop();
 
         if (animating) {
@@ -330,6 +294,32 @@ function fix_edges(edge_data, nodes) {
        });
         return edge_data;
 }
+function add_node_labels(svg, data) {
+    var count = 0;
+
+    svg.selectAll("g")
+        .data(data)
+        .append('text')
+        .attr('x', function (d) {
+            return d.x;
+        })
+        .attr('y', function (d) {
+            return d.y + 6;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("class", "noselect name2")
+        .attr("font-size", "12px")
+        .attr("stroke", "black")
+        .attr("stroke-width", "0.5")
+        .attr("opacity", 1.)
+        .attr("fill", "black")
+        .attr("text-anchor", "middle")
+        .text(function (d) {
+            count++;
+            return count;
+        });
+
+}
 
 make_graph = function () {
 
@@ -348,6 +338,8 @@ make_graph = function () {
     stored_edge_data = edge_data;
     register_times(edge_data);
     draw_nodes(nodes);
+    add_node_labels(svg, node_data);
+
     setup_mouse_handlers(svg);
     var good_edges = get_edges(start_time);
     force_object = start_animation(svg, node_data, good_edges);
