@@ -21,8 +21,8 @@
     <script src="js/jquery.js"></script>
     <script src="./js/jquery-ui.min.js"></script>
     <script src="./js/d3.min.js"></script>
-    <script src="./js/network.js"></script>
-    <script src="./js/time_filter.js"></script>
+    <script src="./js/network2.js"></script>
+    <script src="./js/time_filter2.js"></script>
     <script src="./js/bootstrap.js"></script>
     <script src="./js/health_chart.js"></script>
 
@@ -93,7 +93,7 @@
 
     .link {
         stroke: #777;
-        stroke-width: 2px;
+        /*stroke-width: 2px;*/
     }
 
     .chart circle {
