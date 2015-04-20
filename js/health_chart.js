@@ -8,24 +8,24 @@ var barWidth;
 function make_chart(data, svg) {
 
 
-    time_scale = d3.scale.linear().range([1.5, data.length + 1.5]);
+    time_scale = d3.scale.linear().range([1.5, data.length]);
     time_scale.domain([0, width]);
 
     var margin = {top: 20, right: 30, bottom: 30, left: 40};
-    width = width - margin.left - margin.right;
-    height = height - margin.top - margin.bottom;
+    var width_h = width - margin.left - margin.right;
+    var height_h = height - margin.top - margin.bottom;
 
     svg
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", width_h + margin.left + margin.right)
+        .attr("height", height_h + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var x = d3.scale.ordinal()
-        .rangeRoundBands([0, width], .1);
+        .rangeRoundBands([0, width_h], .1);
 
     var y = d3.scale.linear()
-        .range([height, 0]);
+        .range([height_h, 0]);
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -39,7 +39,7 @@ function make_chart(data, svg) {
         return 10 + d;
     })]);
 
-    barWidth = width / data.length;
+    barWidth = width_h / data.length;
 
     var bar = svg.selectAll("g")
         .data(data)
@@ -68,7 +68,7 @@ function make_chart(data, svg) {
 
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + height_h + ")")
         .call(xAxis)
         .append("text")
         .attr("y", 15)
@@ -94,7 +94,7 @@ function make_chart(data, svg) {
         .attr("x1", 1.5 * barWidth)
         .attr("x2", 1.5 * barWidth)
         .attr("y1", 0)
-        .attr("y2", 500-margin.bottom - margin.top);
+        .attr("y2", height_h);
 
 }
 
