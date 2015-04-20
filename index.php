@@ -13,8 +13,9 @@
     <title>Analysis Tool</title>
     
     <script>
-    var width = 900,
-    height = 500;
+        var playing = false;
+        var width = 900,
+        height = 500;
     </script> 
 
 
@@ -29,27 +30,91 @@
     <link rel = "stylesheet" href="./css/bootstrap.css">
     <link rel = "stylesheet" href="./css/jquery-ui.min.css">
 
-    <script> 
+    <script>
+        var id;
     $(function() {    
         $( "#slider" ).slider({
         slide: function(event, ui) {
             filter_time(ui.value);
-
+            if (ui.value > 1) {
+                $("button.restart").removeAttr('disabled');
+            }
+            else {
+                $("button.restart").attr("disabled", "disabled");
+            }
+            if (ui.value == width && !playing) {
+                $("button.play").attr('disabled', 'disabled');
+            }
+            if (ui.value != width && !playing) {
+                $('button.play').removeAttr('disabled');
+            }
+        },
+        change: function(event, ui) {
+            if (ui.value > 1) {
+                $("button.restart").removeAttr('disabled');
+            }
+            else {
+                $("button.restart").attr("disabled", "disabled");
+            }
+            if (ui.value == width && !playing) {
+                $("button.play").attr('disabled', 'disabled');
+            }
+            if (ui.value != width && !playing) {
+                $('button.play').removeAttr('disabled');
+            }
         },
         max: width,
-        animate: "slow"
+        animate: "fast",
+        range: "min"
     });
     });
     </script>
 
     <script>
+
         $(function() {
-            $( "button" )
+            $( "button.play" )
                 .button()
-                .click(function( event ) {
-                    console.log("testing");
+                .click(function( event ) { //TODO disable clicking and sliding while playing
+                    $("button.play").attr("disabled", "disabled");
+                    $("button.pause").removeAttr("disabled");
+                    playing=true;
+                    id = setInterval(
+                        function () {
+                            var slider_instance = $('#slider');
+                            if (slider_instance.slider('value') >= width) {
+                                $("button.pause").attr("disabled", "disabled");
+                                clearInterval(id);
+                                playing=false;
+                            }
+                            else {
+                                slider_instance.slider('value', slider_instance.slider('value')+1);
+                            }
+                            filter_time(slider_instance.slider('value'));
+                        }, 25);
                     event.preventDefault();
                 });
+        });
+        $(function() {
+            $( "button.pause" )
+                .button()
+                .click(function( event) {
+                    playing=false;
+                    $("button.pause").attr("disabled", "disabled");
+                    $("button.play").removeAttr("disabled");
+                    clearInterval(id);
+                })
+        });
+        $(function() {
+            $( "button.restart" )
+                .button()
+                .click(function( event) {
+                    playing=false;
+                    $("button.pause").attr("disabled", "disabled");
+                    $("button.play").removeAttr("disabled");
+                    clearInterval(id);
+                    $('#slider').slider('value', 0);
+                })
         });
     </script>
 
@@ -93,7 +158,6 @@
 
     .link {
         stroke: #777;
-        /*stroke-width: 2px;*/
     }
 
     .chart circle {
@@ -125,9 +189,15 @@
                 <svg  class="noselect"></svg>
                 <div class="ui-grid-a">
                     <div class="btn-group" role="group" aria-label="...">
-                        <button type="button" class="btn btn-primary">Play</button>
-                        <button type="button" class="btn btn-primary">Pause</button>
-                        <button type="button" class="btn btn-primary">Restart</button>
+                        <button type="button" class="btn btn-primary play">
+                            <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="btn btn-primary pause" disabled>
+                            <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="btn btn-primary restart" disabled>
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                        </button>
                     </div>
 
                     <div class="ui-block-a">

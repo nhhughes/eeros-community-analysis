@@ -1,5 +1,4 @@
 var filter_time = function(slider_value) {
-
     var time = start_time + (slider_value / width * time_range);
     var good_edges = get_edges(time);
     var good_nodes = get_nodes(time);
@@ -10,5 +9,7 @@ var filter_time = function(slider_value) {
 
     process_nodes(svg, good_nodes);
     process_links(svg, good_edges, weights);
+
+    update_force_layout(svg, good_nodes, good_edges, force_layout);
 
 };

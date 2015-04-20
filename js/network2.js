@@ -8,6 +8,10 @@ var stored_edge_data;
 var stored_node_data;
 
 var count = 0;
+var animationStep = 100;
+var animation_delay = 100;
+
+var force_layout;
 
 function register_times(edge_data, node_data) {
     start_time = node_data[0].entrance;
@@ -58,12 +62,13 @@ function process_nodes(svg, data) {
         .on('mouseout', function (d) {
             var nodeSelection = d3.select(this).style({opacity: '1.0'});
             nodeSelection.select("text.name").style({opacity: '0.0'});
-        });
+        })
+        .call(force_layout.drag());
 
     nodes
         .exit()
         .transition()
-        .duration(250)
+        .duration(animation_delay)
         .style("opacity", 0.)
         .remove();
 
@@ -150,9 +155,6 @@ function process_links(svg, data, weights) {
 
     edges
         .exit()
-        .transition()
-        .delay(250)
-        .style('opacity', 0)
         .remove();
 }
 
@@ -210,6 +212,7 @@ function scale_edges(data_links, time) {
 }
 
 function fix_edges(edge_data, nodes) {
+
     edge_data.forEach(function (d) {
         d.source = nodes[d.source];
         d.target = nodes[d.target];
@@ -231,21 +234,97 @@ function fix_nodes(node_data) {
         return a.entrance - b.entrance});
 }
 
+function start_force_layout() {
+    var force_object = d3.layout.force()
+        .size([width, height]);
+    force_object.linkDistance(width / 10);
+
+    force_object.charge(-300);
+    force_object.gravity(0.05);
+    return force_object;
+}
+
+
+function update_force_layout(svg, nodes, edges, force_object) {
+
+
+    force_object.links(edges);
+    force_object.nodes(nodes);
+
+
+
+    var edges_selection = svg.selectAll(".link");
+    var nodes_selection = svg.selectAll(".node");
+    var circles = nodes_selection.selectAll("circle");
+    var texts = nodes_selection.selectAll("text.name");
+    var texts2 = nodes_selection.selectAll("text.name2");
+
+    force_object.on('tick', function () {
+
+        edges_selection.transition().ease('linear').duration(animationStep)
+            .attr('x1', function (d) {
+                return d.source.x;
+            })
+            .attr('y1', function (d) {
+                return d.source.y;
+            })
+            .attr('x2', function (d) {
+                return d.target.x;
+            })
+            .attr('y2', function (d) {
+                return d.target.y;
+            });
+
+        circles.transition().ease('linear').duration(animationStep)
+            .attr('cx', function (d) {
+                return d.x;
+            })
+            .attr('cy', function (d) {
+                return d.y;
+            });
+
+        texts.transition().ease('linear').duration(animationStep)
+            .attr('x', function (d) {
+                return d.x + r;
+            })
+            .attr('y', function (d) {
+                return d.y + r;
+            });
+
+        texts2.transition().ease('linear').duration(animationStep)
+            .attr('x', function (d) {
+                return d.x;
+            })
+            .attr('y', function (d) {
+                return d.y + 6;
+            });
+
+        force_object.stop();
+
+        setTimeout(function () {force_object.start();}, animationStep);
+
+    });
+
+    force_object.start();
+
+}
+
+
 make_graph = function () {
+
+    force_layout = start_force_layout();
 
     var json_data = JSON.parse(query_results);
     stored_node_data = json_data.nodes;
     stored_edge_data = json_data.links;
 
-
-    fix_nodes(stored_node_data);
     stored_edge_data = fix_edges(stored_edge_data, stored_node_data);
+    fix_nodes(stored_node_data);
 
     var svg = d3.select("body").select(".network-display").select('svg')
         .attr('width', width)
         .attr('height', height);
-
-
+    
     svg.append('g')
         .attr('id', 'edges');
 
@@ -260,5 +339,7 @@ make_graph = function () {
     var weights = scale_edges(stored_edge_data, start_time);
     process_links(svg, good_edges, weights);
     process_nodes(svg, good_nodes);
+
+    update_force_layout(svg, good_nodes, good_edges, force_layout);
 
 };
