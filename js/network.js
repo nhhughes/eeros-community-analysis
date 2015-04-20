@@ -47,6 +47,35 @@ function get_nodes(time) {
 
 function process_nodes(svg, data) {
 
+    var labels = svg.select('#labels').selectAll('text')
+        .data(data, function(d) {
+            return d.name;
+        });
+
+    labels
+        .exit()
+        .remove();
+    
+    labels
+        .enter()
+        .append('text')
+        .attr("x", function (d) {
+            return d.x + r;
+        })
+        .attr("y", function (d) {
+            return d.y + r;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("class", "noselect")
+        .attr("font-size", "20px")
+        .attr("stroke", "black")
+        .attr("stroke-width", "0.5")
+        .attr("opacity", 0.)
+        .attr("fill", "black")
+        .text(function (d) {
+            return d.name;
+        });
+
     var nodes = svg.select('#nodes').selectAll('.node')
         .data(data, function(d) {
             return d.name;
@@ -56,12 +85,16 @@ function process_nodes(svg, data) {
         .enter().append('g')
         .attr('class', 'node')
         .on('mouseover', function (d) {
-            var nodeSelection = d3.select(this).style({opacity: '0.8'});
-            nodeSelection.select("text.name").style({opacity: '1.0'});
+            var node_selection = d3.select(this).style({opacity: '0.8'});
+            var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
+            var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
+            label.attr('opacity', 1.);
         })
         .on('mouseout', function (d) {
-            var nodeSelection = d3.select(this).style({opacity: '1.0'});
-            nodeSelection.select("text.name").style({opacity: '0.0'});
+            var node_selection = d3.select(this).style({opacity: '1.0'});
+            var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
+            var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
+            label.attr('opacity', 0.);
         })
         .call(force_layout.drag());
 
@@ -74,7 +107,6 @@ function process_nodes(svg, data) {
 
     count = count == 0 ? 0 : nodes[0].length;
 
-
     //Place for update methods
     groups.append('circle')
         .attr('cx', function (d) {
@@ -85,24 +117,6 @@ function process_nodes(svg, data) {
         })
         .attr("fill", "red")
         .attr('r', r);
-
-    groups.append('text')
-        .attr("x", function (d) {
-            return d.x + r;
-        })
-        .attr("y", function (d) {
-            return d.y + r;
-        })
-        .attr("font-family", "sans-serif")
-        .attr("class", "noselect name")
-        .attr("font-size", "20px")
-        .attr("stroke", "black")
-        .attr("stroke-width", "0.5")
-        .attr("opacity", 0.)
-        .attr("fill", "black")
-        .text(function (d) {
-            return d.name;
-        });
 
     groups
         .append('text')
@@ -123,7 +137,6 @@ function process_nodes(svg, data) {
             count++;
             return count;
         });
-
 }
 
 function process_links(svg, data, weights) {
@@ -251,13 +264,11 @@ function update_force_layout(svg, nodes, edges, force_object) {
     force_object.links(edges);
     force_object.nodes(nodes);
 
-
-
     var edges_selection = svg.selectAll(".link");
     var nodes_selection = svg.selectAll(".node");
     var circles = nodes_selection.selectAll("circle");
-    var texts = nodes_selection.selectAll("text.name");
-    var texts2 = nodes_selection.selectAll("text.name2");
+    var labels = svg.select('#labels').selectAll("text");
+    var texts = nodes_selection.selectAll("text");
 
     force_object.on('tick', function () {
 
@@ -283,7 +294,7 @@ function update_force_layout(svg, nodes, edges, force_object) {
                 return d.y;
             });
 
-        texts.transition().ease('linear').duration(animationStep)
+        labels.transition().ease('linear').duration(animationStep)
             .attr('x', function (d) {
                 return d.x + r;
             })
@@ -291,7 +302,7 @@ function update_force_layout(svg, nodes, edges, force_object) {
                 return d.y + r;
             });
 
-        texts2.transition().ease('linear').duration(animationStep)
+        texts.transition().ease('linear').duration(animationStep)
             .attr('x', function (d) {
                 return d.x;
             })
@@ -324,12 +335,15 @@ make_graph = function () {
     var svg = d3.select("body").select(".network-display").select('svg')
         .attr('width', width)
         .attr('height', height);
-    
+
     svg.append('g')
         .attr('id', 'edges');
 
     svg.append('g')
         .attr('id', 'nodes');
+
+    svg.append('g')
+        .attr('id', 'labels');
 
     register_times(stored_edge_data, stored_node_data);
 
