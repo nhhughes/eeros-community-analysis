@@ -291,8 +291,7 @@ make_graph = function () {
 
     var good_edges = get_edges(start_time);
     var good_nodes = get_nodes(start_time);
-    console.log(good_nodes);
-    console.log(stored_edge_data);
+    console.log(stored_node_data);
     var weights = scale_edges(stored_edge_data, start_time);
     process_links(svg, good_edges, weights);
     process_nodes(svg, good_nodes, start_time);
