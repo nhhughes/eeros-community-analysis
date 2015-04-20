@@ -98,8 +98,6 @@ def traverse_graph(root, graph, total_graph, health_values):
             for child in graph[curr]:
                 if child not in visited:
                     frontier.append((child, curr))
-        else:
-            print "duplicate visitation!"
 
 
 def do_something(root, tree, total_graph, parent, health_values):
@@ -166,15 +164,7 @@ def update_edge(actors, child, parent, tree):
                     weak_interactions += 1
 
     weight = weak_interactions * 0.1 + strong_interactions * 0.5
-    if parent_author not in actors[child_author]:
-        actors.add_edge(parent_author, child_author, weights={to_update_with: weight}, weight=weight,
-                        start=[to_update_with], end=[])
-    else:
-        new_weight = actors[child_author][parent_author]['weight'] + weight
-        actors[child_author][parent_author]['weights'][to_update_with] = new_weight
-        actors[parent_author][child_author]['weights'][to_update_with] = new_weight
-        actors[child_author][parent_author]['weight'] = new_weight
-        actors[parent_author][child_author]['weight'] = new_weight
+    update_weight_values(weight, to_update_with, parent_author, child_author, actors, tree)
 
 
 def update_actors(tree, actors, root):
@@ -197,6 +187,29 @@ def process_days(tree, repo):
     ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
     finalize_graph(ending_date, total_graph)
     store_all_results_json(total_graph, health_values, repo)
+
+
+def update_weight_values(weight, date, parent_author, child_author, actors, tree):
+    if parent_author not in actors[child_author]:
+        actors.add_edge(parent_author, child_author, weights={date: weight}, weight=weight,
+                        start=[date], end=[])
+    else:
+        update_needed = date < max(actors[parent_author][child_author]['weights'].keys())
+        if update_needed:
+            total_weight = sum(map(lambda x: actors[child_author][parent_author]['weights'][x],
+                                   filter(lambda x: x < date, actors[child_author][parent_author].keys())))
+            print total_weight
+            new_weight = actors[child_author][parent_author]['weight'] + weight
+            actors[child_author][parent_author]['weights'][date] = new_weight
+            actors[parent_author][child_author]['weights'][date] = new_weight
+            actors[child_author][parent_author]['weight'] = new_weight
+            actors[parent_author][child_author]['weight'] = new_weight
+        else:
+            new_weight = actors[child_author][parent_author]['weight'] + weight
+            actors[child_author][parent_author]['weights'][date] = new_weight
+            actors[parent_author][child_author]['weights'][date] = new_weight
+            actors[child_author][parent_author]['weight'] = new_weight
+            actors[parent_author][child_author]['weight'] = new_weight
 
 
 def finalize_graph(end_date, actors):
