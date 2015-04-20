@@ -1,7 +1,12 @@
 var filter_time = function(slider_value) {
     var time = start_time + (slider_value / width * time_range);
+
     var good_edges = get_edges(time);
     var good_nodes = get_nodes(time);
+
+
+    console.log(time);
+
 
     var svg = d3.select("body").select(".network-display").select('svg');
 
@@ -14,8 +19,8 @@ var filter_time = function(slider_value) {
 
     var line = d3.select("body").select(".network-health").select("svg").select(".guide");
 
-    line
-        .attr("x1", time_scale(slider_value)*barWidth)
-        .attr("x2", time_scale(slider_value)*barWidth);
+    //line
+    //    .attr("x1", time_scale(slider_value)*barWidth)
+    //    .attr("x2", time_scale(slider_value)*barWidth);
 
 };

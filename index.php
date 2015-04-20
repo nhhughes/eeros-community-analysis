@@ -264,7 +264,7 @@
 
 <script>
     make_graph();
-    health_chart();
+//    health_chart();
 </script>
 </body>
 
