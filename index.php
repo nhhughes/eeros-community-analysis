@@ -174,9 +174,18 @@
                     <div class="panel-heading">
                         <h1 class="text-center">Statistics</h1>
                     </div>
-                    <div class="panel-body">
-                        <p>Testing!</p>
-                    </div>
+                    <table class="table">
+                        <tr>
+                            <th>Age</th>
+                            <th>Number of Commits</th>
+                            <th>Number of Contributors</th>
+                        </tr>
+                        <tr>
+                            <td>Age goes here!</td>
+                            <td>Number of commits goes here!</td>
+                            <td>Number of contributors goes here!</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
