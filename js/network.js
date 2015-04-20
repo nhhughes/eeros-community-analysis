@@ -16,7 +16,7 @@ var force_layout;
 function register_times(edge_data, node_data) {
     start_time = node_data[0].entrance;
     edge_data.forEach(function (d) {
-        var end = d.ends;
+        var end = d.end;
         if (end.length > 0) {
             if ((end_time < end[end.length-1] || end_time == -1) && end[end.length-1] != - 1) {
                 end_time = end[end.length-1];
@@ -30,7 +30,7 @@ function register_times(edge_data, node_data) {
 function get_edges(time) {
     return stored_edge_data.filter(function (item) {
         for (var i = 0; i < item.start.length; i++) {
-            if (item.start[i] <= time && time <= item.ends[i]) {
+            if (item.start[i] <= time && time <= item.end[i]) {
                 return true;
             }
         }
@@ -291,7 +291,8 @@ make_graph = function () {
 
     var good_edges = get_edges(start_time);
     var good_nodes = get_nodes(start_time);
-
+    console.log(good_nodes);
+    console.log(stored_edge_data);
     var weights = scale_edges(stored_edge_data, start_time);
     process_links(svg, good_edges, weights);
     process_nodes(svg, good_nodes, start_time);

@@ -9,9 +9,7 @@ function fix_edges(edge_data, nodes) {
         d.target = nodes[d.target];
         d.weights = d.weight;
     });
-    return edge_data.filter(function(d) {
-        return d.source.name != d.target.name;
-    });
+    return edge_data;
 
 }
 
