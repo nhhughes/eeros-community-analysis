@@ -13,6 +13,11 @@ var animation_delay = 100;
 
 var force_layout;
 
+var color = d3.scale.linear()
+    .domain([-1, 0, 1])
+    .range(["red", "white", "green"]);
+
+
 function register_times(edge_data, node_data) {
     start_time = node_data[0].entrance;
     edge_data.forEach(function (d) {

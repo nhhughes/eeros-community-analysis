@@ -71,7 +71,7 @@ def create_community_actors(tree, date):
     for i in filtered_dict.keys():
         actors.add(attributes[i])
     for actor in actors:
-        graph.add_node(actor, name=actor, entrance=date)
+        graph.add_node(actor, name=actor, entrance=date, importance={})
     for u in graph.nodes():
         for v in graph.nodes():
             graph.add_edge(u, v, weight=0.)
@@ -144,7 +144,7 @@ def update_actors(tree, valid_commits, actors, date):
     authors = set(map(lambda x: tree.node[x]['author'], valid_commits))
     to_add = filter(lambda x: x not in actors.nodes(), authors)
     for author in to_add:
-        actors.add_node(author, name=author, entrance=date)
+        actors.add_node(author, name=author, entrance=date, importance={})
     for actor in to_add:
         for node in actors.nodes():
             actors.add_edge(actor, node, weight=0.)
@@ -168,6 +168,11 @@ def update_total_graph(update, graph, date):
         if e[0] not in update[e[1]] and graph[e[1]][e[0]]['current']:
             graph[e[1]][e[0]]['ends'].append(date)
             graph[e[1]][e[0]]['current'] = False
+    for node in graph.nodes():
+        importance = 0.
+        for edge in graph[node]:
+            importance += graph[node][edge]['weight'][date]
+        graph.node[node]['importance'][date] = importance
 
 
 def process_days(tree, parent_tree, repo):
