@@ -16,7 +16,7 @@
         var playing = false;
         var width = 700,
         height = 500;
-    </script> 
+    </script>
 
 
     <script src="js/jquery.js"></script>
@@ -33,7 +33,7 @@
 
     <script>
         var id;
-    $(function() {    
+    $(function() {
         $( "#slider" ).slider({
         slide: function(event, ui) {
             filter_time(ui.value);
@@ -175,16 +175,6 @@
         text-anchor: middle;
     }
 
-    table {
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    td {
-        padding: 15px;
-    }
-
-
 </style>
 
 <body>
@@ -245,14 +235,22 @@
                     </div>
                     <table class="table">
                         <tr>
+                            <th></th>
                             <th>Age</th>
                             <th>Number of Commits</th>
                             <th>Number of Contributors</th>
                         </tr>
                         <tr>
+                            <th>Visualization</th>
                             <td>Age goes here!</td>
                             <td>Number of commits goes here!</td>
                             <td>Number of contributors goes here!</td>
+                        </tr>
+                        <tr>
+                            <th><?php echo "As of " . date('D, d M Y'); ?></th>
+                            <td>Total age</td>
+                            <td>Total commits</td>
+                            <td>Total contributors</td>
                         </tr>
                     </table>
                 </div>
