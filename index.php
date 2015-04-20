@@ -11,11 +11,11 @@
     <meta name="author" content="The EEROS Team">
 
     <title>Analysis Tool</title>
-    
+
     <script>
-    var width = 900,
+    var width = 700,
     height = 500;
-    </script> 
+    </script>
 
 
     <script src="js/jquery.js"></script>
@@ -29,8 +29,8 @@
     <link rel = "stylesheet" href="./css/bootstrap.css">
     <link rel = "stylesheet" href="./css/jquery-ui.min.css">
 
-    <script> 
-    $(function() {    
+    <script>
+    $(function() {
         $( "#slider" ).slider({
         slide: function(event, ui) {
             filter_time(ui.value);
@@ -110,55 +110,71 @@
         text-anchor: middle;
     }
 
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    td {
+        padding: 15px;
+    }
+
 
 </style>
 
 <body>
 
-<div class="container">
-    <div class="row">
-        <div class="network-display panel panel-primary">
-            <div class ="panel-heading">
-                <h1 class="text-center">Community Visualization</h1>
-            </div>
-            <div class ="panel-body">
-                <svg  class="noselect"></svg>
-                <div class="ui-grid-a">
-                    <div class="btn-group" role="group" aria-label="...">
-                        <button type="button" class="btn btn-primary">Play</button>
-                        <button type="button" class="btn btn-primary">Pause</button>
-                        <button type="button" class="btn btn-primary">Restart</button>
-                    </div>
+    <table>
+        <tr>
+            <td>
+                <div>
+                    <div class="network-display panel panel-primary">
+                        <div class ="panel-heading">
+                            <h1 class="text-center">Community Visualization</h1>
+                        </div>
+                        <div class ="panel-body">
+                            <svg  class="noselect"></svg>
+                            <div class="ui-grid-a">
+                                <div class="btn-group" role="group" aria-label="...">
+                                    <button type="button" class="btn btn-primary">Play</button>
+                                    <button type="button" class="btn btn-primary">Pause</button>
+                                    <button type="button" class="btn btn-primary">Restart</button>
+                                </div>
 
-                    <div class="ui-block-a">
-                        <div id="slider"></div>
+                                <div class="ui-block-a">
+                                    <div id="slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+            <div>
+                <div class="network-health panel panel-primary">
+                    <div class = "panel-heading">
+                        <h1 class="text-center">Community Health Metrics</h1>
+                    </div>
+                    <div class="panel-body">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                Metric <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">Estrada Index</a></li>
+                            </ul>
+                        </div>
+                        <br>
+                        <br>
+                        <svg class="noselect chart"></svg>
+
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="network-health panel panel-primary">
-            <div class = "panel-heading">
-                <h1 class="text-center">Community Health Metrics</h1>
-            </div>
-            <div class="panel-body">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                        Metric <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Estrada Index</a></li>
-                    </ul>
-                </div>
-                <br>
-                <br>
-                <svg class="noselect chart"></svg>
+            </td>
+        </tr>
+    </table>
 
-            </div>
-        </div>
-    </div>
-</div>
 
 
 <script>
