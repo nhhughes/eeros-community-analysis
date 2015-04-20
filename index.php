@@ -123,10 +123,9 @@
 </style>
 
 <body>
-
-    <table>
-        <tr>
-            <td>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
                 <div>
                     <div class="network-display panel panel-primary">
                         <div class ="panel-heading">
@@ -148,32 +147,44 @@
                         </div>
                     </div>
                 </div>
-            </td>
-            <td>
-            <div>
-                <div class="network-health panel panel-primary">
-                    <div class = "panel-heading">
-                        <h1 class="text-center">Community Health Metrics</h1>
-                    </div>
-                    <div class="panel-body">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                Metric <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Estrada Index</a></li>
-                            </ul>
+            </div>
+            <div class="col-md-6">
+                <div>
+                    <div class="network-health panel panel-primary">
+                        <div class = "panel-heading">
+                            <h1 class="text-center">Community Health Metrics</h1>
                         </div>
-                        <br>
-                        <br>
-                        <svg class="noselect chart"></svg>
+                        <div class="panel-body">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Metric <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">Estrada Index</a></li>
+                                </ul>
+                            </div>
+                            <br>
+                            <br>
+                            <svg class="noselect chart"></svg>
 
+                        </div>
                     </div>
                 </div>
             </div>
-            </td>
-        </tr>
-    </table>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h1 class="text-center">Statistics</h1>
+                    </div>
+                    <div class="panel-body">
+                        <p>Testing!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 

@@ -2239,7 +2239,7 @@ pre code {
     height: 100px;
     margin: -50px 0 0 0px;
 	}
-	
+
 .affix .links{
 	margin-top: -45px;
     padding-bottom: 0px;
@@ -2266,33 +2266,18 @@ pre code {
 	border-style: solid none none none;
 	margin-bottom: 20px;
 	}
-	
+
 @media (min-width: 0px) {
     .container {
-        width: 923px;
+        width: 1600px;
     }
 
     .affix-top {
-        width: 923px;
+        width: 1600px;
     }
-	
+
 	.affix {
-        width: 923px;
-
-    }
-}
-
-@media (min-width: 1600px) {
-    .container {
-        width: 1170px;
-    }
-
-    .affix-top {
-        width: 1170px;
-    }
-	
-	.affix {
-        width: 1170px;
+        width: 1600px;
     }
 }
 
