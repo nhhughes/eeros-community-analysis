@@ -4,10 +4,6 @@ var filter_time = function(slider_value) {
     var good_edges = get_edges(time);
     var good_nodes = get_nodes(time);
 
-
-    console.log(time);
-
-
     var svg = d3.select("body").select(".network-display").select('svg');
 
     var weights = scale_edges(svg, stored_edge_data, time);

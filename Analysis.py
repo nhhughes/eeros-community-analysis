@@ -194,7 +194,7 @@ def process_days(tree, repo):
     root = filter(lambda x: degrees[x] == 0, degrees)[0]
     traverse_graph(root, tree, total_graph, health_values)
 
-    ending_date = min(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
+    ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
     finalize_graph(ending_date, total_graph)
     store_all_results_json(total_graph, health_values, repo)
 
