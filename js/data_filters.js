@@ -66,7 +66,7 @@ function get_weights(data_links, good_links, time) {
 
 function scale_edges(data_links, time) {
     var weight_scale = d3.scale.linear()
-        .range([0.1,5.]);
+        .range([1,10.]);
     var good_links = get_edges(time);
 
     weight_scale.domain(get_extremes(good_links, time));
@@ -82,13 +82,13 @@ function get_node_extremes(filtered_nodes, time) {
     var max_weight = -1;
     var min_weight = -1;
 
-    var actual_times = Object.keys(filtered_nodes[0].importance);
-
-    var actual_time = actual_times.reduce(function (prev, curr) {
-        return (Math.abs(curr - time) < Math.abs(curr - time) ? curr: prev);
-    });
-    console.log(actual_time);
     filtered_nodes.forEach(function (d) {
+
+        var actual_times = Object.keys(d.importance);
+
+        var actual_time = actual_times.reduce(function (prev, curr) {
+            return (Math.abs(curr - time) < Math.abs(curr - time) ? curr: prev);
+        });
 
         if (d.importance[actual_time] > max_weight || max_weight == -1) {
             max_weight = d.importance[actual_time]
@@ -98,4 +98,15 @@ function get_node_extremes(filtered_nodes, time) {
         }
     });
     return [max_weight, min_weight]
+}
+
+function get_node_importance(filtered_nodes, time) {
+    return filtered_nodes.map(function (d) {
+        var actual_times = Object.keys(d.importance);
+        var actual_time = actual_times.reduce(function (prev, curr) {
+            return (Math.abs(curr - time) < Math.abs(curr - time) ? curr: prev);
+        });
+        return d.importance[actual_time];
+
+    })
 }
