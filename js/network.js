@@ -47,7 +47,12 @@ function get_nodes(time) {
 
 function process_nodes(svg, data, time) {
 
-    console.log(get_node_extremes(data, time));
+
+    var color = d3.scale.linear()
+        .domain(get_node_extremes(data, time))
+        .range(["white", "green"]);
+
+    var importances = get_node_importance(data, time);
 
     var labels = svg.select('#labels').selectAll('text')
         .data(data, function(d) {
@@ -83,6 +88,11 @@ function process_nodes(svg, data, time) {
             return d.name;
         });
 
+    nodes
+        .selectAll('circle')
+        .attr("fill", function(d) {var temp = color(importances[data.indexOf(d)]);
+            return temp;});
+
     var groups = nodes
         .enter().append('g')
         .attr('class', 'node')
@@ -117,7 +127,8 @@ function process_nodes(svg, data, time) {
         .attr('cy', function (d) {
             return d.y;
         })
-        .attr("fill", "red")
+        .attr("fill", function(d) {return color(importances[data.indexOf(d)])})
+        .attr("stroke", "black")
         .attr('r', r);
 
     groups
@@ -140,10 +151,6 @@ function process_nodes(svg, data, time) {
             return count;
         });
 
-    var color = d3.scale.linear()
-        .domain([-1, 0, 1])
-        .range(["red", "white", "green"]);
-
 }
 
 function process_links(svg, data, weights) {
@@ -151,6 +158,11 @@ function process_links(svg, data, weights) {
     var edges = svg.select("#edges").selectAll('.link')
         .data(data, function (d) {
             return d.source.name + ":" + d.target.name;
+        });
+
+    edges
+        .attr('stroke-width', function(d) {
+            return weights[data.indexOf(d)];
         });
 
     edges
@@ -170,7 +182,7 @@ function process_links(svg, data, weights) {
             return d.target.y;
         })
         .attr('stroke-width', function(d) {
-            return weights[stored_edge_data.indexOf(d)];
+            return weights[data.indexOf(d)];
         });
 
     edges
@@ -254,8 +266,6 @@ function update_force_layout(svg, nodes, edges, force_object) {
 make_graph = function () {
 
     force_layout = start_force_layout();
-
-    console.log(width);
 
     var json_data = JSON.parse(query_results);
     stored_node_data = json_data.nodes;
