@@ -126,48 +126,44 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <div>
-                    <div class="network-display panel panel-primary">
-                        <div class ="panel-heading">
-                            <h1 class="text-center">Community Visualization</h1>
-                        </div>
-                        <div class ="panel-body">
-                            <svg  class="noselect"></svg>
-                            <div class="ui-grid-a">
-                                <div class="btn-group" role="group" aria-label="...">
-                                    <button type="button" class="btn btn-primary">Play</button>
-                                    <button type="button" class="btn btn-primary">Pause</button>
-                                    <button type="button" class="btn btn-primary">Restart</button>
-                                </div>
+                <div class="network-display panel panel-primary">
+                    <div class ="panel-heading">
+                        <h1 class="text-center">Community Visualization</h1>
+                    </div>
+                    <div class ="panel-body">
+                        <svg  class="noselect"></svg>
+                        <div class="ui-grid-a">
+                            <div class="btn-group" role="group" aria-label="...">
+                                <button type="button" class="btn btn-primary">Play</button>
+                                <button type="button" class="btn btn-primary">Pause</button>
+                                <button type="button" class="btn btn-primary">Restart</button>
+                            </div>
 
-                                <div class="ui-block-a">
-                                    <div id="slider"></div>
-                                </div>
+                            <div class="ui-block-a">
+                                <div id="slider"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div>
-                    <div class="network-health panel panel-primary">
-                        <div class = "panel-heading">
-                            <h1 class="text-center">Community Health Metrics</h1>
+                <div class="network-health panel panel-primary">
+                    <div class = "panel-heading">
+                        <h1 class="text-center">Community Health Metrics</h1>
+                    </div>
+                    <div class="panel-body">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                Metric <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">Estrada Index</a></li>
+                            </ul>
                         </div>
-                        <div class="panel-body">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    Metric <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Estrada Index</a></li>
-                                </ul>
-                            </div>
-                            <br>
-                            <br>
-                            <svg class="noselect chart"></svg>
+                        <br>
+                        <br>
+                        <svg class="noselect chart"></svg>
 
-                        </div>
                     </div>
                 </div>
             </div>
