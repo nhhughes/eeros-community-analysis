@@ -2,11 +2,18 @@
  * Created by nathan on 4/17/15.
  */
 
+var time_scale;
+var barWidth;
+
 function make_chart(data, svg) {
 
-    var margin = {top: 20, right: 30, bottom: 30, left: 40},
-        width = 700 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+
+    time_scale = d3.scale.linear().range([1.5, data.length + 1.5]);
+    time_scale.domain([0, width]);
+
+    var margin = {top: 20, right: 30, bottom: 30, left: 40};
+    width = width - margin.left - margin.right;
+    height = width - margin.top - margin.bottom;
 
     svg
         .attr("width", width + margin.left + margin.right)
@@ -32,7 +39,7 @@ function make_chart(data, svg) {
         return 10 + d;
     })]);
 
-    var barWidth = width / data.length;
+    barWidth = width / data.length;
 
     var bar = svg.selectAll("g")
         .data(data)
@@ -79,6 +86,15 @@ function make_chart(data, svg) {
         .attr("dy", ".71em")
         .style("text-anchor", "end")
         .text("Estrada Index");
+
+    svg.append("line")
+        .attr("stroke", "red")
+        .attr("class", "guide")
+        .attr("stroke-width", 2)
+        .attr("x1", 1.5 * barWidth)
+        .attr("x2", 1.5 * barWidth)
+        .attr("y1", 0)
+        .attr("y2", 500-margin.bottom - margin.top);
 
 }
 
