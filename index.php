@@ -223,6 +223,7 @@
                         <h1 class="text-center">Community Health Metrics</h1>
                     </div>
                     <div class="panel-body">
+                        <svg class="noselect chart"></svg>
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 Metric <span class="caret"></span>
@@ -231,9 +232,6 @@
                                 <li><a href="#">Estrada Index</a></li>
                             </ul>
                         </div>
-                        <br>
-                        <br>
-                        <svg class="noselect chart"></svg>
 
                     </div>
                 </div>

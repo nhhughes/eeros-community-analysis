@@ -13,7 +13,7 @@ function make_chart(data, svg) {
 
     var margin = {top: 20, right: 30, bottom: 30, left: 40};
     width = width - margin.left - margin.right;
-    height = width - margin.top - margin.bottom;
+    height = height - margin.top - margin.bottom;
 
     svg
         .attr("width", width + margin.left + margin.right)
