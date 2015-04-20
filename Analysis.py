@@ -186,7 +186,16 @@ def process_days(tree, repo):
 
     ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
     finalize_graph(ending_date, total_graph)
+    check_weights(total_graph)
     store_all_results_json(total_graph, health_values, repo)
+
+
+def check_weights(total_graph):
+    for e in total_graph.edges():
+        dates = total_graph[e[0]][e[1]]['weights'].keys()
+        for i in range(1, len(dates)):
+            if total_graph[e[0]][e[1]]['weights'][dates[i]] < total_graph[e[0]][e[1]]['weights'][dates[i -1]]:
+                print "Problem!"
 
 
 def update_weight_values(weight, date, parent_author, child_author, actors, tree):
@@ -196,19 +205,24 @@ def update_weight_values(weight, date, parent_author, child_author, actors, tree
     else:
         update_needed = date < max(actors[parent_author][child_author]['weights'].keys())
         if update_needed:
+
             total_weight = sum(map(lambda x: actors[child_author][parent_author]['weights'][x],
-                                   filter(lambda x: x < date, actors[child_author][parent_author].keys())))
-            print total_weight
+                                   filter(lambda x: x < date, actors[child_author][parent_author]['weights'].keys())))
+
+            to_update = sorted(filter(lambda x: x > date, actors[child_author][parent_author]['weights'].keys()))
+
+            actors[child_author][parent_author]['weights'][date] = total_weight + weight
+
+            for small_update in to_update:
+                total_weight = actors[child_author][parent_author]['weights'][small_update]
+                actors[child_author][parent_author]['weights'][small_update] = total_weight + weight
+
             new_weight = actors[child_author][parent_author]['weight'] + weight
-            actors[child_author][parent_author]['weights'][date] = new_weight
-            actors[parent_author][child_author]['weights'][date] = new_weight
             actors[child_author][parent_author]['weight'] = new_weight
-            actors[parent_author][child_author]['weight'] = new_weight
+
         else:
             new_weight = actors[child_author][parent_author]['weight'] + weight
-            actors[child_author][parent_author]['weights'][date] = new_weight
             actors[parent_author][child_author]['weights'][date] = new_weight
-            actors[child_author][parent_author]['weight'] = new_weight
             actors[parent_author][child_author]['weight'] = new_weight
 
 
