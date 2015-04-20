@@ -55,7 +55,7 @@ function process_nodes(svg, data) {
     labels
         .exit()
         .remove();
-    
+
     labels
         .enter()
         .append('text')
@@ -324,6 +324,8 @@ function update_force_layout(svg, nodes, edges, force_object) {
 make_graph = function () {
 
     force_layout = start_force_layout();
+
+    console.log(width);
 
     var json_data = JSON.parse(query_results);
     stored_node_data = json_data.nodes;
