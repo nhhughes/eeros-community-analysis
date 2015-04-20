@@ -7,7 +7,7 @@ var filter_time = function(slider_value) {
 
     var weights = scale_edges(svg, stored_edge_data, time);
 
-    process_nodes(svg, good_nodes);
+    process_nodes(svg, good_nodes, time);
     process_links(svg, good_edges, weights);
 
     update_force_layout(svg, good_nodes, good_edges, force_layout);

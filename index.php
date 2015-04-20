@@ -22,6 +22,7 @@
     <script src="js/jquery.js"></script>
     <script src="./js/jquery-ui.min.js"></script>
     <script src="./js/d3.min.js"></script>
+    <script src="./js/data_filters.js"></script>
     <script src="./js/network.js"></script>
     <script src="./js/time_filter.js"></script>
     <script src="./js/bootstrap.js"></script>
