@@ -7,6 +7,7 @@ import re
 import time
 from progressbar import ProgressBar
 from progressbar.widgets import Bar
+from Queue import PriorityQueue
 
 
 def get_commit_tree_json(repo):
@@ -60,27 +61,71 @@ def update_commit_tree_with_diffs(tree):
         tree.node[node]['diff'] = process_diff(tree.node[node]['diff'])
 
 
-# TODO check if time format still is correct
-def create_community_actors(tree, date):
-    graph = nx.Graph()
-    attributes = nx.get_node_attributes(tree, 'author')
-    dates = nx.get_node_attributes(tree, 'date')
-    y = lambda x: time.strptime(date, "%Y-%m-%dT%H:%M:%SZ") >= time.strptime(x, "%Y-%m-%dT%H:%M:%SZ")
-    filtered_dict = {k: v for (k, v) in dates.iteritems() if y(v)}
-    actors = set()
-    for i in filtered_dict.keys():
-        actors.add(attributes[i])
-    for actor in actors:
-        graph.add_node(actor, name=actor, entrance=date, importance={})
-    for u in graph.nodes():
-        for v in graph.nodes():
-            graph.add_edge(u, v, weight=0.)
-    return graph
+def update_total_graph(update, graph, date):
+    for e in update.edges():
+
+        if e[0] not in graph:
+            graph.add_node(e[0], **update.node[e[0]])
+        if e[1] not in graph:
+            graph.add_node(e[1], **update.node[e[1]])
+        if e[0] not in graph[e[1]]:
+            graph.add_edge(e[0], e[1], start=[date], weight={date: update[e[0]][e[1]]['weight']}, ends=[], current=True)
+        else:
+            if not graph[e[0]][e[1]]['current']:
+                graph[e[0]][e[1]]['start'].append(date)
+                graph[e[0]][e[1]]['current'] = True
+            graph[e[0]][e[1]]['weight'][date] = update[e[0]][e[1]]['weight']
+    for e in graph.edges():
+        if e[0] not in update[e[1]] and graph[e[1]][e[0]]['current']:
+            graph[e[1]][e[0]]['ends'].append(date)
+            graph[e[1]][e[0]]['current'] = False
+    for node in graph.nodes():
+        importance = 0.
+        for edge in graph[node]:
+            importance += graph[node][edge]['weight'][date]
+        graph.node[node]['importance'][date] = importance
 
 
-def update_edge(actors, child, parent, diffs, author):
-    child_diff = diffs[child]
-    parent_diff = diffs[parent]
+def traverse_graph(root, graph, total_graph, health_values):
+    frontier = PriorityQueue()
+    visited = set([])
+    frontier.put((graph.node[root]['date'], (root, None)))
+    while not frontier.empty():
+        curr, parent = frontier.get()[1]
+        do_something(curr, graph, total_graph, parent, health_values)
+        if curr not in visited:
+            visited.add(curr)
+            for child in graph[curr]:
+                if child not in visited:
+                    frontier.put((graph.node[child]['date'], (child, curr)))
+
+
+def do_something(root, tree, total_graph, parent, health_values):
+    update_actors(tree, total_graph, root)
+    date = tree.node[root]['date']
+    date = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
+    if parent:
+        update_edge(total_graph, root, parent, tree)
+    for node in total_graph.nodes():
+        importance = 0.
+        for edge in total_graph[node]:
+            importance += total_graph[node][edge]['weight']
+        total_graph.node[node]['importance'][date] = importance
+    health_values.append((date, nx.estrada_index(total_graph)))
+
+
+def update_edge(actors, child, parent, tree):
+    child_diff = tree.node[child]['diff']
+    parent_diff = tree.node[parent]['diff']
+
+    date = tree.node[child]['date']
+    to_update_with = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
+
+    child_author = tree.node[child]['author']
+    parent_author = tree.node[parent]['author']
+
+    if child_author == parent_author:
+        return
 
     strong_interactions = 0
     weak_interactions = 0
@@ -119,104 +164,47 @@ def update_edge(actors, child, parent, diffs, author):
                     weak_interactions += 1
 
     weight = weak_interactions * 0.1 + strong_interactions * 0.5
-    actors[author[parent]][author[child]]['weight'] += weight
-    actors[author[child]][author[parent]]['weight'] += weight
+    update_weight_values(weight, to_update_with, parent_author, child_author, actors, tree)
 
 
-def update_actor_network(actors, valid_commits, parent_tree, authors, diffs):
-    for node in valid_commits:
-        parents = parent_tree[node].keys()
-        for parent in parents:
-            update_edge(actors, node, parent, diffs, authors)
+def update_actors(tree, actors, root):
+    author = tree.node[root]['author']
+    if author not in actors:
+        date = tree.node[root]['date']
+        to_update_with = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
+        actors.add_node(author, name=author, entrance=to_update_with, importance={})
 
 
-def filter_edges_by_weight(graph, threshold):
-    graph_copy = graph.copy()
-    edges_to_remove = []
-    for edge in graph.edges():
-        if graph[edge[0]][edge[1]]['weight'] < threshold:
-            edges_to_remove.append(edge)
-    graph_copy.remove_edges_from(edges_to_remove)
-    return graph_copy
-
-
-def update_actors(tree, valid_commits, actors, date):
-    authors = set(map(lambda x: tree.node[x]['author'], valid_commits))
-    to_add = filter(lambda x: x not in actors.nodes(), authors)
-    for author in to_add:
-        actors.add_node(author, name=author, entrance=date, importance={})
-    for actor in to_add:
-        for node in actors.nodes():
-            actors.add_edge(actor, node, weight=0.)
-
-
-def update_total_graph(update, graph, date):
-    for e in update.edges():
-
-        if e[0] not in graph:
-            graph.add_node(e[0], **update.node[e[0]])
-        if e[1] not in graph:
-            graph.add_node(e[1], **update.node[e[1]])
-        if e[0] not in graph[e[1]]:
-            graph.add_edge(e[0], e[1], start=[date], weight={date: update[e[0]][e[1]]['weight']}, ends=[], current=True)
-        else:
-            if not graph[e[0]][e[1]]['current']:
-                graph[e[0]][e[1]]['start'].append(date)
-                graph[e[0]][e[1]]['current'] = True
-            graph[e[0]][e[1]]['weight'][date] = update[e[0]][e[1]]['weight']
-    for e in graph.edges():
-        if e[0] not in update[e[1]] and graph[e[1]][e[0]]['current']:
-            graph[e[1]][e[0]]['ends'].append(date)
-            graph[e[1]][e[0]]['current'] = False
-    for node in graph.nodes():
-        importance = 0.
-        for edge in graph[node]:
-            importance += graph[node][edge]['weight'][date]
-        graph.node[node]['importance'][date] = importance
-
-
-def process_days(tree, parent_tree, repo):
-    sorted_commits = sorted(tree.nodes(), key=lambda x: time.mktime(time.strptime(tree.node[x]['date'],
-                                                                                  "%Y-%m-%dT%H:%M:%SZ")))
-    start_date = min(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")),
-                         tree.nodes()))
-    stop_date = time.time()
-
+def process_days(tree, repo):
     total_graph = nx.Graph()
 
-    authors_dict = nx.get_node_attributes(tree, 'author')
-    diffs_dict = nx.get_node_attributes(tree, 'diff')
-
-    dates = range(int(start_date), int(stop_date), 86400*7)
-
-    progress = ProgressBar(widgets=['Analyzing community by week', Bar()])
-
-    actors = create_community_actors(tree, time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(dates[0])))
-    prev_date = dates[0]
     health_values = []
-    for date in progress(dates[1:]):
-        valid_commits = filter(
-            lambda x: prev_date < time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")) < date,
-            sorted_commits)
-        update_actors(tree, valid_commits, actors, date)
-        update_actor_network(actors, valid_commits, parent_tree, authors_dict, diffs_dict)
-        to_display = filter_edges_by_weight(actors, 0.5)
 
-        health = nx.estrada_index(to_display)
-        health_values.append(health)
+    degrees = tree.in_degree()
+    root = filter(lambda x: degrees[x] == 0, degrees)[0]
+    traverse_graph(root, tree, total_graph, health_values)
 
-        update_total_graph(to_display, total_graph, date)
-
-    finalize_graph(dates[-1], total_graph)
+    ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
+    finalize_graph(ending_date, total_graph)
     store_all_results_json(total_graph, health_values, repo)
+
+
+def update_weight_values(weight, date, parent_author, child_author, actors, tree):
+    if parent_author not in actors[child_author]:
+        actors.add_edge(parent_author, child_author, weights={date: weight}, weight=weight,
+                        start=[date], end=[])
+    else:
+        new_weight = actors[child_author][parent_author]['weight'] + weight
+        actors[parent_author][child_author]['weights'][date] = new_weight
+        actors[parent_author][child_author]['weight'] = new_weight
 
 
 def finalize_graph(end_date, actors):
     for edge in actors.edges():
-        if len(actors[edge[0]][edge[1]]['start']) > len(actors[edge[0]][edge[1]]['ends']):
-            actors[edge[0]][edge[1]]['ends'].append(end_date)
-        if len(actors[edge[1]][edge[0]]['start']) > len(actors[edge[1]][edge[0]]['ends']):
-            actors[edge[1]][edge[0]]['ends'].append(end_date)
+        if len(actors[edge[0]][edge[1]]['start']) > len(actors[edge[0]][edge[1]]['end']):
+            actors[edge[0]][edge[1]]['end'].append(end_date)
+        if len(actors[edge[1]][edge[0]]['start']) > len(actors[edge[1]][edge[0]]['end']):
+            actors[edge[1]][edge[0]]['end'].append(end_date)
 
 
 def store_all_results_json(total_graph, health_values, repo):
@@ -246,12 +234,11 @@ def main():
     repo = sys.argv[2]
 
     tree = clean_up_commit_tree(get_commit_tree_json(repo))
-    parent_tree = tree.reverse()
 
     update_commit_tree_with_diffs(tree)
 
     if sys.argv[1] == 'r':
-        process_days(tree, parent_tree, repo)
+        process_days(tree, repo)
     else:
         pass
 
