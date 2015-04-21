@@ -30,6 +30,7 @@
 
     <link rel = "stylesheet" href="./css/bootstrap.css">
     <link rel = "stylesheet" href="./css/jquery-ui.min.css">
+    <link rel = "stylesheet" href="./css/charts.css">
 
     <script>
         var id;
@@ -129,54 +130,6 @@
 
 </head>
 
-<style>
-
-    .axis text {
-        font: 10px sans-serif;
-    }
-
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-
-    .noselect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-    .node {
-        fill: #ccc;
-        stroke: #fff;
-        stroke-width: 2px;
-    }
-
-    .link {
-        stroke: #777;
-    }
-
-    .chart circle {
-        fill: steelblue;
-    }
-
-    .chart rect {
-        fill: steelblue;
-    }
-
-    .chart text {
-        fill: black;
-        font: 10px sans-serif;
-        text-anchor: middle;
-    }
-
-</style>
-
 <body>
     <div class="container">
         <div class="row">
@@ -212,7 +165,7 @@
                     <div class = "panel-heading">
                         <h1 class="text-center">Community Health Metrics</h1>
                     </div>
-                    <div class="panel-body">
+                    <div class="panel-body bottom-margin">
                         <svg class="noselect chart"></svg>
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
