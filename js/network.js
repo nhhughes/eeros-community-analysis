@@ -47,13 +47,16 @@ function get_nodes(time) {
 
 function process_nodes(svg, data, time) {
 
+    var extremes = get_node_extremes(data, time);
 
+    if (extremes[0] == extremes[1]) {
+        extremes = [extremes[0] + 0.1, extremes[1]];
+    }
     var color = d3.scale.linear()
-        .domain(get_node_extremes(data, time))
-        .range(["white", "green"]);
+        .domain(extremes)
+        .range(["green", "white"]);
 
     var importances = get_node_importance(data, time);
-
     var labels = svg.select('#labels').selectAll('text')
         .data(data, function(d) {
             return d.name;
@@ -96,18 +99,18 @@ function process_nodes(svg, data, time) {
     var groups = nodes
         .enter().append('g')
         .attr('class', 'node')
-        .on('mouseover', function (d) {
-            var node_selection = d3.select(this).style({opacity: '0.8'});
-            var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
-            var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
-            label.attr('opacity', 1.);
-        })
-        .on('mouseout', function (d) {
-            var node_selection = d3.select(this).style({opacity: '1.0'});
-            var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
-            var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
-            label.attr('opacity', 0.);
-        })
+        //.on('mouseover', function (d) {
+        //    var node_selection = d3.select(this).style({opacity: '0.8'});
+        //    var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
+        //    var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
+        //    label.attr('opacity', 1.);
+        //})
+        //.on('mouseout', function (d) {
+        //    var node_selection = d3.select(this).style({opacity: '1.0'});
+        //    var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
+        //    var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
+        //    label.attr('opacity', 0.);
+        //})
         .call(force_layout.drag());
 
     nodes

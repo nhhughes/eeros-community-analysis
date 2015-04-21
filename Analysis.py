@@ -10,13 +10,34 @@ from progressbar.widgets import Bar
 from Queue import PriorityQueue
 
 
-def get_commit_tree_json(repo):
-    import json
-    from networkx.readwrite import json_graph
-    with open('./data/' + repo + ':commits', 'r') as f:
-        data = f.read()
-        json_data = json.loads(data)
-        return json_graph.node_link_graph(json_data)
+def main():
+    print '\n', "*" * 80
+    s = "* Welcome to the EEROS IQP Team Community Analysis Tool"
+    s += " " * (79 - len(s))
+    s += "*"
+    print s
+    print "*" * 80, "\n"
+    if len(sys.argv) != 3:
+        print "Invalid Arguments!"
+        print "Usage: ./Analysis u|r Repository-Name"
+        exit(1)
+    if not (sys.argv[1] == 'r' or sys.argv[1] == 'u'):
+        print "Invalid Arguments!"
+        print "Usage: ./Analysis u|r Repository-Name"
+        exit(1)
+    repo = sys.argv[2]
+
+    tree = clean_up_commit_tree(get_commit_tree_json(repo))
+
+    update_commit_tree_with_diffs(tree)
+
+    if sys.argv[1] == 'r':
+        process_days(tree, repo)
+    else:
+        pass
+
+    print "Finished analysis!"
+    print
 
 
 def clean_up_commit_tree(tree):
@@ -29,9 +50,26 @@ def clean_up_commit_tree(tree):
     return new_tree
 
 
-def get_graph_info(graph):
-    communicability_centrality = nx.communicability_centrality(graph)
-    return communicability_centrality
+def get_commit_tree_json(repo):
+    import json
+    from networkx.readwrite import json_graph
+    with open('./data/' + repo + ':commits', 'r') as f:
+        data = f.read()
+        json_data = json.loads(data)
+        return json_graph.node_link_graph(json_data)
+
+
+def update_commit_tree_with_diffs(tree):
+    progress = ProgressBar(widgets=['Processing File Differences', Bar()])
+    for node in tree.nodes():
+        tree.node[node]['diff'] = process_diff(tree.node[node]['diff'])
+
+
+def process_diff(diff_text):
+    p = re.compile('(-{3} .*)\n(\+{3} .*)\n(@{2}.*@{2})')
+    matches = p.findall(diff_text)
+    diff_strings = [make_diff_string(i) for i in matches]
+    return diff_strings
 
 
 def make_diff_string(diff_set):
@@ -48,51 +86,30 @@ def make_diff_string(diff_set):
     return s
 
 
-def process_diff(diff_text):
-    p = re.compile('(-{3} .*)\n(\+{3} .*)\n(@{2}.*@{2})')
-    matches = p.findall(diff_text)
-    diff_strings = [make_diff_string(i) for i in matches]
-    return diff_strings
+def process_days(tree, repo, edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
+    total_graph = nx.Graph()
+
+    health_values = []
+
+    degrees = tree.in_degree()
+    root = filter(lambda x: degrees[x] == 0, degrees)[0]
+    traverse_graph(root, tree, total_graph, health_values, edge_tolerance=edge_tolerance, init_time_val=init_time_val,
+                   deprecation_val=deprecation_val)
+
+    ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
+    finalize_graph(ending_date, total_graph)
+    store_all_results_json(total_graph, health_values, repo)
 
 
-def update_commit_tree_with_diffs(tree):
-    progress = ProgressBar(widgets=['Processing File Differences', Bar()])
-    for node in progress(tree.nodes()):
-        tree.node[node]['diff'] = process_diff(tree.node[node]['diff'])
-
-
-def update_total_graph(update, graph, date):
-    for e in update.edges():
-
-        if e[0] not in graph:
-            graph.add_node(e[0], **update.node[e[0]])
-        if e[1] not in graph:
-            graph.add_node(e[1], **update.node[e[1]])
-        if e[0] not in graph[e[1]]:
-            graph.add_edge(e[0], e[1], start=[date], weight={date: update[e[0]][e[1]]['weight']}, ends=[], current=True)
-        else:
-            if not graph[e[0]][e[1]]['current']:
-                graph[e[0]][e[1]]['start'].append(date)
-                graph[e[0]][e[1]]['current'] = True
-            graph[e[0]][e[1]]['weight'][date] = update[e[0]][e[1]]['weight']
-    for e in graph.edges():
-        if e[0] not in update[e[1]] and graph[e[1]][e[0]]['current']:
-            graph[e[1]][e[0]]['ends'].append(date)
-            graph[e[1]][e[0]]['current'] = False
-    for node in graph.nodes():
-        importance = 0.
-        for edge in graph[node]:
-            importance += graph[node][edge]['weight'][date]
-        graph.node[node]['importance'][date] = importance
-
-
-def traverse_graph(root, graph, total_graph, health_values):
+def traverse_graph(root, graph, total_graph, health_values, edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
+    file_diffs = {}
     frontier = PriorityQueue()
     visited = set([])
     frontier.put((graph.node[root]['date'], (root, None)))
     while not frontier.empty():
         curr, parent = frontier.get()[1]
-        do_something(curr, graph, total_graph, parent, health_values)
+        do_something(curr, graph, total_graph, parent, health_values, file_diffs, edge_tolerance=edge_tolerance,
+                     init_time_val=init_time_val, deprecation_val=deprecation_val)
         if curr not in visited:
             visited.add(curr)
             for child in graph[curr]:
@@ -100,21 +117,35 @@ def traverse_graph(root, graph, total_graph, health_values):
                     frontier.put((graph.node[child]['date'], (child, curr)))
 
 
-def do_something(root, tree, total_graph, parent, health_values):
+def do_something(root, tree, total_graph, parent, health_values, file_diffs, edge_tolerance=0.5, init_time_val=5,
+                 deprecation_val=1):
     update_actors(tree, total_graph, root)
     date = tree.node[root]['date']
     date = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
     if parent:
-        update_edge(total_graph, root, parent, tree)
+        update_edge(total_graph, root, parent, tree, file_diffs, edge_tolerance=edge_tolerance,
+                    init_time_val=init_time_val, deprecation_val=deprecation_val)
     for node in total_graph.nodes():
         importance = 0.
         for edge in total_graph[node]:
             importance += total_graph[node][edge]['weight']
         total_graph.node[node]['importance'][date] = importance
+    print "*"*40
+    print date
+    for node in total_graph.nodes():
+        print "Email:", total_graph.node[node]['name'], "Importance:", total_graph.node[node]['importance'][date]
     health_values.append((date, nx.estrada_index(total_graph)))
 
 
-def update_edge(actors, child, parent, tree):
+def update_actors(tree, actors, root):
+    author = tree.node[root]['author']
+    if author not in actors:
+        date = tree.node[root]['date']
+        to_update_with = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
+        actors.add_node(author, name=author, entrance=to_update_with, importance={})
+
+
+def update_edge(actors, child, parent, tree, file_diffs, edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
     child_diff = tree.node[child]['diff']
     parent_diff = tree.node[parent]['diff']
 
@@ -127,9 +158,23 @@ def update_edge(actors, child, parent, tree):
     if child_author == parent_author:
         return
 
-    strong_interactions = 0
-    weak_interactions = 0
+    strong_interactions = get_direct_interactions(child_diff, parent_diff)
+    weak_interactions, files_edited = get_indirect_interactions(child_diff, file_diffs)
+    update_file_diffs(file_diffs, files_edited, child_author, init_time_val=init_time_val,
+                      deprecation_val=deprecation_val)
 
+    for author in weak_interactions:
+        if author != child_author:
+            if author != parent_author:
+                weight = weak_interactions[author] * 0.1
+            else:
+                weight = weak_interactions[author] * 0.1 + + strong_interactions * 0.5
+            update_weight_values(weight, to_update_with, parent_author, child_author, actors,
+                                 edge_tolerance=edge_tolerance)
+
+
+def get_direct_interactions(child_diff, parent_diff):
+    strong_interactions = 0
     lines_edited = {}
 
     for diff_piece in child_diff:
@@ -160,43 +205,57 @@ def update_edge(actors, child, parent, tree):
                     if i in lines_edited[file_edited]:
                         strong_interactions += 1
                         break
+
+    return strong_interactions
+
+
+def get_indirect_interactions(child_diffs, file_edits):
+    indirect_authors = {}
+    files_edited = []
+    for difference in child_diffs:
+        info = difference.split(":")
+        if info[0] == 'dev/null':
+            pass
+        elif info[0] in file_edits:
+            files_edited.append(info[0])
+            for author in file_edits[info[0]].keys():
+                if author in indirect_authors:
+                    indirect_authors[author] += 1
                 else:
-                    weak_interactions += 1
+                    indirect_authors[author] = 1
+        else:
+            files_edited.append(info[0])
 
-    weight = weak_interactions * 0.1 + strong_interactions * 0.5
-    update_weight_values(weight, to_update_with, parent_author, child_author, actors, tree)
-
-
-def update_actors(tree, actors, root):
-    author = tree.node[root]['author']
-    if author not in actors:
-        date = tree.node[root]['date']
-        to_update_with = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
-        actors.add_node(author, name=author, entrance=to_update_with, importance={})
+    return indirect_authors, files_edited
 
 
-def process_days(tree, repo):
-    total_graph = nx.Graph()
-
-    health_values = []
-
-    degrees = tree.in_degree()
-    root = filter(lambda x: degrees[x] == 0, degrees)[0]
-    traverse_graph(root, tree, total_graph, health_values)
-
-    ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
-    finalize_graph(ending_date, total_graph)
-    store_all_results_json(total_graph, health_values, repo)
+def update_file_diffs(file_diffs, files_edited, child_author, init_time_val=5, deprecation_val=1):
+    for file_object in files_edited:
+        if file_object in file_diffs:
+            file_diffs[file_object][child_author] = init_time_val
+        else:
+            file_diffs[file_object] = {child_author: init_time_val}
+    for file_object in file_diffs:
+        for author in file_diffs[file_object]:
+            file_diffs[file_object][author] -= deprecation_val
 
 
-def update_weight_values(weight, date, parent_author, child_author, actors, tree):
+def update_weight_values(weight, date, parent_author, child_author, actors, edge_tolerance=0.5):
     if parent_author not in actors[child_author]:
         actors.add_edge(parent_author, child_author, weights={date: weight}, weight=weight,
-                        start=[date], end=[])
+                        start=[date], end=[], current=True)
     else:
-        new_weight = actors[child_author][parent_author]['weight'] + weight
-        actors[parent_author][child_author]['weights'][date] = new_weight
-        actors[parent_author][child_author]['weight'] = new_weight
+        if actors[child_author][parent_author]['current']:
+            new_weight = actors[child_author][parent_author]['weight'] + weight
+            actors[parent_author][child_author]['weights'][date] = new_weight
+            actors[parent_author][child_author]['weight'] = new_weight
+        else:
+            if abs(weight) > edge_tolerance:
+                actors[parent_author][child_author]['current'] = True
+                actors[parent_author][child_author]['start'].append(date)
+                new_weight = actors[child_author][parent_author]['weight'] + weight
+                actors[parent_author][child_author]['weights'][date] = new_weight
+                actors[parent_author][child_author]['weight'] = new_weight
 
 
 def finalize_graph(end_date, actors):
@@ -214,36 +273,6 @@ def store_all_results_json(total_graph, health_values, repo):
     data = json_graph.node_link_data(total_graph)
     with open('./data/' + repo + ':actors', 'w') as f:
         json.dump(data, f)
-
-
-def main():
-    print '\n', "*" * 80
-    s = "* Welcome to the EEROS IQP Team Community Analysis Tool"
-    s += " " * (79 - len(s))
-    s += "*"
-    print s
-    print "*" * 80, "\n"
-    if len(sys.argv) != 3:
-        print "Invalid Arguments!"
-        print "Usage: ./Analysis u|r Repository-Name"
-        exit(1)
-    if not (sys.argv[1] == 'r' or sys.argv[1] == 'u'):
-        print "Invalid Arguments!"
-        print "Usage: ./Analysis u|r Repository-Name"
-        exit(1)
-    repo = sys.argv[2]
-
-    tree = clean_up_commit_tree(get_commit_tree_json(repo))
-
-    update_commit_tree_with_diffs(tree)
-
-    if sys.argv[1] == 'r':
-        process_days(tree, repo)
-    else:
-        pass
-
-    print "Finished analysis!"
-    print
 
 
 if __name__ == '__main__':

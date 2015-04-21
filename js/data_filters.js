@@ -84,7 +84,7 @@ function get_node_extremes(filtered_nodes, time) {
         var actual_times = Object.keys(d.importance);
 
         var actual_time = actual_times.reduce(function (prev, curr) {
-            return (Math.abs(curr - time) < Math.abs(curr - time) ? curr: prev);
+            return (Math.abs(parseInt(curr) - time) < Math.abs(parseInt(prev) - time) ? curr: prev);
         });
 
         if (d.importance[actual_time] > max_weight || max_weight == -1) {
@@ -101,7 +101,7 @@ function get_node_importance(filtered_nodes, time) {
     return filtered_nodes.map(function (d) {
         var actual_times = Object.keys(d.importance);
         var actual_time = actual_times.reduce(function (prev, curr) {
-            return (Math.abs(curr - time) < Math.abs(curr - time) ? curr: prev);
+            return (Math.abs(parseInt(curr) - time) < Math.abs(parseInt(prev) - time) ? curr: prev);
         });
         return d.importance[actual_time];
 
