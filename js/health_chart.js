@@ -7,6 +7,13 @@ var barWidth;
 
 function make_chart(data, svg) {
 
+    var dates = data.map(function (d) {
+        return d[0] / 86400;
+    });
+
+    var min_date = dates.reduce(function (a, b) {return a < b ? a : b});
+    var max_date = dates.reduce(function (a, b) {return a > b ? a : b});
+    max_date = max_date - min_date;
 
     time_scale = d3.scale.linear().range([1.5, data.length]);
     time_scale.domain([0, width]);
@@ -21,8 +28,9 @@ function make_chart(data, svg) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var x = d3.scale.ordinal()
-        .rangeRoundBands([0, width_h], .1);
+    var x = d3.scale.linear()
+        .range([0, width_h])
+        .domain([0, max_date]);
 
     var y = d3.scale.linear()
         .range([height_h, 0]);
@@ -36,45 +44,56 @@ function make_chart(data, svg) {
         .orient("bottom");
 
     y.domain([0, d3.max(data, function (d) {
-        return 10 + d;
-    })]);
+        return d[1];
+    }) - 10]);
 
     barWidth = width_h / data.length;
 
     var bar = svg.selectAll("g")
         .data(data)
-        .enter().append("g")
-        .attr("transform", function (d, i) {
-            return "translate(" + i * barWidth + ",0)";
-        });
+        .enter().append("g");
 
     bar.append("circle")
+        //.attr("class", "health")
         .attr("cy", function (d) {
-            return y(d);
+            return y(d[1]);
         })
         .attr("r", 3)
-        .attr("cx", barWidth / 2);
-
-    bar.append("text")
-        .attr("x", barWidth / 2)
-        .attr("y", function (d) {
-            return y(d) -10;
-        })
-        .attr("dy", ".75em")
-        .attr("opacity", 0.)
-        .text(function (d) {
-            return Math.round(d);
+        .attr("cx", function (d) {
+            return x((d[0]/86400) - min_date);
         });
+    //
+    //bar.append("text")
+    //    .attr("x", barWidth / 2)
+    //    .attr("y", function (d) {
+    //        return y(d) -10;
+    //    })
+    //    .attr("dy", ".75em")
+    //    .attr("opacity", 0.)
+    //    .text(function (d) {
+    //        return Math.round(d);
+    //    });
+
+    console.log(max_date);
+
+    var circles = svg.selectAll("circle")[0];
+    circles =  circles.sort(function (a, b) {
+        return a.cx - b.bx});
+    console.log(circles.map(function (d) {return d.cy.baseVal.value;}));
+
+
+
+
 
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height_h + ")")
         .call(xAxis)
         .append("text")
-        .attr("y", 15)
-        .attr("x", 40)
+        .attr("y", -3)
+        .attr("x", width_h)
         .style("text-anchor", "end")
-        .text("Time");
+        .text("Time (days)");
 
 
     svg.append("g")

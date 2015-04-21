@@ -15,8 +15,8 @@ var filter_time = function(slider_value) {
 
     var line = d3.select("body").select(".network-health").select("svg").select(".guide");
 
-    //line
-    //    .attr("x1", time_scale(slider_value)*barWidth)
-    //    .attr("x2", time_scale(slider_value)*barWidth);
+    line
+        .attr("x1", time_scale(slider_value)*barWidth)
+        .attr("x2", time_scale(slider_value)*barWidth);
 
 };
