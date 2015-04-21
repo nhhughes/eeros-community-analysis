@@ -28,6 +28,9 @@ function make_chart(data, svg) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    var lines = svg.append("g")
+        .attr("class", "connections");
+
     var x = d3.scale.linear()
         .range([0, width_h])
         .domain([0, max_date]);
@@ -73,26 +76,6 @@ function make_chart(data, svg) {
     //        return Math.round(d);
     //    });
 
-    //var lines = svg.selectAll("g").append("g");
-    //
-    //var circles = svg.selectAll("circle")[0];
-    //circles =  circles.sort(function (a, b) {
-    //    return a.cx - b.bx});
-    //for (var i = 1; i < circles.length; i ++) {
-    //    var x1 = circles[i].cx.baseVal.value;
-    //    var y1 = circles[i].cy.baseVal.value;
-    //    var x2 = circles[i-1].cx.baseVal.value;
-    //    var y2 = circles[i-1].cy.baseVal.value;
-    //    lines.append("line")
-    //        .attr("x1", x1)
-    //        .attr("x2", x2)
-    //        .attr("y1", y1)
-    //        .attr("y2", y2)
-    //
-    //}
-    //
-
-
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height_h + ")")
@@ -122,6 +105,34 @@ function make_chart(data, svg) {
         .attr("x2", 1.5 * barWidth)
         .attr("y1", 0)
         .attr("y2", height_h);
+
+
+
+    var circles = svg.selectAll("circle")[0];
+    circles =  circles.sort(function (a, b) {
+        return a.cx.baseVal.value - b.cx.baseVal.value});
+    lines.append("line")
+        .attr("x1", 0)
+        .attr("x2", 500)
+        .attr("y1", 250)
+        .attr("y2", 250)
+
+    ;
+    for (var i = 1; i < circles.length; i ++) {
+        var x1 = circles[i].cx.baseVal.value;
+        var y1 = circles[i].cy.baseVal.value;
+        var x2 = circles[i-1].cx.baseVal.value;
+        var y2 = circles[i-1].cy.baseVal.value;
+        lines.append("line")
+            .attr("x1", x1)
+            .attr("x2", x2)
+            .attr("y1", y1)
+            .attr("y2", y2)
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1)
+    }
+
+
 
 }
 
