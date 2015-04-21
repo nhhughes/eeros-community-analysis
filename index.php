@@ -116,6 +116,7 @@
                     $("button.play").removeAttr("disabled");
                     clearInterval(id);
                     $('#slider').slider('value', 0);
+                    filter_time(0);
                 })
         });
     </script>

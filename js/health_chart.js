@@ -33,7 +33,7 @@ function make_chart(data, svg) {
         .domain([0, max_date]);
 
     var y = d3.scale.linear()
-        .range([height_h, 0]);
+        .range([height_h, 10]);
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -45,7 +45,7 @@ function make_chart(data, svg) {
 
     y.domain([0, d3.max(data, function (d) {
         return d[1];
-    }) - 10]);
+    })]);
 
     barWidth = width_h / data.length;
 
@@ -54,7 +54,6 @@ function make_chart(data, svg) {
         .enter().append("g");
 
     bar.append("circle")
-        //.attr("class", "health")
         .attr("cy", function (d) {
             return y(d[1]);
         })
@@ -74,15 +73,24 @@ function make_chart(data, svg) {
     //        return Math.round(d);
     //    });
 
-
-
-    var circles = svg.selectAll("circle")[0];
-    circles =  circles.sort(function (a, b) {
-        return a.cx - b.bx});
-    //console.log(circles.map(function (d) {return d.cy.baseVal.value;}));
-
-
-
+    //var lines = svg.selectAll("g").append("g");
+    //
+    //var circles = svg.selectAll("circle")[0];
+    //circles =  circles.sort(function (a, b) {
+    //    return a.cx - b.bx});
+    //for (var i = 1; i < circles.length; i ++) {
+    //    var x1 = circles[i].cx.baseVal.value;
+    //    var y1 = circles[i].cy.baseVal.value;
+    //    var x2 = circles[i-1].cx.baseVal.value;
+    //    var y2 = circles[i-1].cy.baseVal.value;
+    //    lines.append("line")
+    //        .attr("x1", x1)
+    //        .attr("x2", x2)
+    //        .attr("y1", y1)
+    //        .attr("y2", y2)
+    //
+    //}
+    //
 
 
     svg.append("g")
