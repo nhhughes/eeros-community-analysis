@@ -74,12 +74,12 @@ function make_chart(data, svg) {
     //        return Math.round(d);
     //    });
 
-    console.log(max_date);
+
 
     var circles = svg.selectAll("circle")[0];
     circles =  circles.sort(function (a, b) {
         return a.cx - b.bx});
-    console.log(circles.map(function (d) {return d.cy.baseVal.value;}));
+    //console.log(circles.map(function (d) {return d.cy.baseVal.value;}));
 
 
 

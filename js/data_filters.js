@@ -7,7 +7,6 @@ function fix_edges(edge_data, nodes) {
     edge_data.forEach(function (d) {
         d.source = nodes[d.source];
         d.target = nodes[d.target];
-        d.weights = d.weight;
     });
     return edge_data;
 
@@ -27,8 +26,8 @@ function fix_nodes(node_data) {
 function get_extremes(filtered_data_links, time) {
     var max_weight = -1;
     var min_weight = -1;
-
     filtered_data_links.forEach(function (d) {
+
         var actual_times = Object.keys(d.weights);
 
         var actual_time = actual_times.reduce(function (prev, curr) {
@@ -64,7 +63,7 @@ function get_weights(data_links, good_links, time) {
 
 function scale_edges(data_links, time) {
     var weight_scale = d3.scale.linear()
-        .range([1,10.]);
+        .range([1,3.]);
     var good_links = get_edges(time);
 
     weight_scale.domain(get_extremes(good_links, time));
