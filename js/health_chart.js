@@ -7,7 +7,8 @@ var barWidth;
 var actors;
 var commits;
 var health;
-
+var margin = {top: 20, right: 30, bottom: 30, left: 40};
+var list;
 
 function make_chart(data, svg) {
 
@@ -22,7 +23,7 @@ function make_chart(data, svg) {
     time_scale = d3.scale.linear().range([1.5, data.length]);
     time_scale.domain([0, width]);
 
-    var margin = {top: 20, right: 30, bottom: 30, left: 40};
+
     var width_h = width - margin.left - margin.right;
     var height_h = height - margin.top - margin.bottom;
 
@@ -55,33 +56,26 @@ function make_chart(data, svg) {
     })]);
 
     barWidth = width_h / data.length;
-    var bar = svg.selectAll("g")
-        .data(data)
-        .enter().append("g").attr('class', 'data_point');
 
-    bar.append("circle")
+    var bar = svg.selectAll("circle")
+        .data(data);
+
+    bar
+        .enter()
+        .append("circle")
+
+        .attr("class",  "data_point")
         .attr("cy", function (d) {
             return y(d[1]);
         })
         .attr("r", 3)
         .attr("cx", function (d) {
-            return x((d[0]/86400) - min_date);
+            return x((d[0]/86400) - min_date) + margin.left;
         });
-    //
-    //bar.append("text")
-    //    .attr("x", barWidth / 2)
-    //    .attr("y", function (d) {
-    //        return y(d) -10;
-    //    })
-    //    .attr("dy", ".75em")
-    //    .attr("opacity", 0.)
-    //    .text(function (d) {
-    //        return Math.round(d);
-    //    });
 
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + height_h + ")")
+        .attr("transform", "translate(" + margin.left + "," + height_h + ")")
         .call(xAxis)
         .append("text")
         .attr("y", -3)
@@ -92,8 +86,10 @@ function make_chart(data, svg) {
 
     svg.append("g")
         .attr("class", "y axis")
+        .attr("transform", "translate(" + margin.left + ", 0)")
         .call(yAxis)
         .append("text")
+        .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
         .attr("dy", ".71em")
@@ -104,8 +100,8 @@ function make_chart(data, svg) {
         .attr("stroke", "red")
         .attr("class", "guide")
         .attr("stroke-width", 2)
-        .attr("x1", 1.5 * barWidth)
-        .attr("x2", 1.5 * barWidth)
+        .attr("x1", 1.5 * barWidth + margin.left)
+        .attr("x2", 1.5 * barWidth + margin.left)
         .attr("y1", 0)
         .attr("y2", height_h);
 
@@ -113,22 +109,30 @@ function make_chart(data, svg) {
     circles =  circles.sort(function (a, b) {
         return a.cx.baseVal.value - b.cx.baseVal.value});
 
-    console.log(circles.length);
-    console.log(data.length);
-
-    for (var i = 1; i < circles.length; i ++) {
-        var x1 = circles[i].cx.baseVal.value;
-        var y1 = circles[i].cy.baseVal.value;
-        var x2 = circles[i-1].cx.baseVal.value;
-        var y2 = circles[i-1].cy.baseVal.value;
-        lines.append("line")
-            .attr("x1", x1)
-            .attr("x2", x2)
-            .attr("y1", y1)
-            .attr("y2", y2)
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 1)
+    list = [];
+    for (var j = 0; j < circles.length-1; j++) {
+        list.push(j);
     }
+
+    lines.selectAll("line")
+        .data(list)
+        .enter()
+        .append("line")
+        .attr("x1", function(d) {
+            return circles[d].cx.baseVal.value;
+        })
+        .attr("x2", function(d) {
+            return circles[d+1].cx.baseVal.value;
+        })
+        .attr("y1", function(d) {
+            return circles[d].cy.baseVal.value;
+        })
+        .attr("y2", function(d) {
+            return circles[d+1].cy.baseVal.value;
+        })
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1);
+
 }
 
 var health_chart = function() {

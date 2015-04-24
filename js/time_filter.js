@@ -16,8 +16,8 @@ var filter_time = function(slider_value) {
     var line = d3.select("body").select(".network-health").select("svg").select(".guide");
 
     line
-        .attr("x1", time_scale(slider_value)*barWidth)
-        .attr("x2", time_scale(slider_value)*barWidth);
+        .attr("x1", time_scale(slider_value)*barWidth + margin.left)
+        .attr("x2", time_scale(slider_value)*barWidth + margin.left);
 
     var actual_time = commits.reduce(function(a, b) {
        return (Math.abs(parseInt(a) - time) < Math.abs(parseInt(b) - time) ? a: b);
@@ -38,6 +38,7 @@ var filter_time = function(slider_value) {
 var current_health_metric = "Estrada Index";
 
 function update_health_chart(data, svg, label) {
+
     var margin = {top: 20, right: 30, bottom: 30, left: 40};
 
     var height_h = height - margin.top - margin.bottom;
@@ -53,9 +54,12 @@ function update_health_chart(data, svg, label) {
         .scale(y)
         .orient("left");
 
+    var axis_object = d3.select('.y').call(yAxis).select('.label');
+
+    axis_object.text(label);
+
     var bar = svg.selectAll(".data_point")
-        .data(data)
-        .selectAll("circle");
+        .data(data);
 
     bar
         .transition()
@@ -64,41 +68,41 @@ function update_health_chart(data, svg, label) {
             return y(d[1]);
         });
 
-    var lines = svg.select(".connections").selectAll("line")[0];
-
-    console.log(lines.length);
-    console.log(data.length);
-    for (var i = 1; i < data.length; i ++) {
-        var y1 = data[i][1];
-        var y2 = data[i-1][1];
-        //console.log(lines[i-1]);
-    }
-
-
-
-
-
+    var lines = svg.select(".connections").selectAll("line");
+    lines.data(list)
+        .transition()
+        .duration(250)
+        .attr("y1", function(d) {
+            return y(data[d][1]);
+        })
+        .attr("y2", function(d) {
+            return y(data[d+1][1]);
+        });
 }
 
 var change_menu_items = function(new_menu_item) {
   //Do stuff involving swapping out the labels
-
-    current_health_metric = new_menu_item;
+    if (new_menu_item == current_health_metric) {
+        return false;
+    }
 
     var svg = d3.select("body").select(".network-health").select('svg');
-    if (new_menu_item == "Estrada Index") {
-        update_health_chart(health, svg, new_menu_item);
+    if (new_menu_item == "#option1") {
+        update_health_chart(health, svg, "Estrada Index");
     }
-    else if (new_menu_item == "Commits") {
-        update_health_chart(commits, svg, new_menu_item);
+    else if (new_menu_item == "#option2") {
+        update_health_chart(health, svg, "Average Betweenness");
     }
-    else if (new_menu_item == "Contributors") {
-        update_health_chart(actors, svg, new_menu_item);
+    else if (new_menu_item == "#option3") {
+        update_health_chart(commits, svg, "Commits");
+    }
+    else if (new_menu_item == "#option4") {
+        update_health_chart(actors, svg, "Contributors");
     }
     else {
         console.log("TBD");
     }
-
+    return true;
 
 
 };

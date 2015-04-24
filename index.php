@@ -131,9 +131,6 @@
                     filter_time(0);
                 })
         });
-    </script>
-
-    <script>
 
     </script>
 
@@ -185,17 +182,19 @@
                     <div class="panel-body bottom-margin">
                         <svg class="noselect chart"></svg>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                Estrada Index<span class="caret"></span>
+                            <button type = "button" id="option1" class="btn btn-primary">
+                                Estrada Index
                             </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="javascript:change_menu_items('Estrada Index');">Estrada Index</a></li>
-                                <li><a href="javascript:change_menu_items('Commits');">Commits</a></li>
-                                <li><a href="javascript:change_menu_items('Contributors');">Contributors</a></li>
-                                <li><a href="javascript:change_menu_items('Average Betweenness');">Average Betweenness</a></li>
-                            </ul>
+                            <button type = "button" id="option2" class="btn btn-primary">
+                                Average Betweenness
+                            </button>
+                            <button type = "button" id="option3" class="btn btn-primary">
+                                Commits
+                            </button>
+                            <button type = "button" id="option4" class="btn btn-primary">
+                                Contributors
+                            </button>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -231,8 +230,47 @@
 
 
 <script>
+
     health_chart();
     make_graph();
+
+    $('#option1').button('toggle');
+    current_health_metric = '#option1';
+
+    $("#option1").on('click', function () {
+        var changed = change_menu_items('#option1');
+        if (changed) {
+            $(current_health_metric).button('toggle');
+            current_health_metric = '#option1';
+            $(current_health_metric).button('toggle');
+        }
+    });
+    $("#option2").on('click', function () {
+        var changed = change_menu_items('#option2');
+        if (changed) {
+            $(current_health_metric).button('toggle');
+            current_health_metric = '#option2';
+            $(current_health_metric).button('toggle');
+        }
+    });
+    $("#option3").on('click', function () {
+        var changed = change_menu_items('#option3');
+        if (changed) {
+            $(current_health_metric).button('toggle');
+            current_health_metric = '#option3';
+            $(current_health_metric).button('toggle');
+        }
+    });
+    $("#option4").on('click', function () {
+        var changed = change_menu_items('#option4');
+        if (changed) {
+            $(current_health_metric).button('toggle');
+            current_health_metric = '#option4';
+            $(current_health_metric).button('toggle');
+        }
+    });
+
+
 </script>
 </body>
 
