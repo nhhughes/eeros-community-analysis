@@ -90,26 +90,31 @@ def process_days(tree, repo, edge_tolerance=0.5, init_time_val=5, deprecation_va
     total_graph = nx.Graph()
 
     health_values = []
+    commit_count = []
+    actor_count = []
 
     degrees = tree.in_degree()
     root = filter(lambda x: degrees[x] == 0, degrees)[0]
-    traverse_graph(root, tree, total_graph, health_values, edge_tolerance=edge_tolerance, init_time_val=init_time_val,
-                   deprecation_val=deprecation_val)
+    traverse_graph(root, tree, total_graph, health_values, commit_count, actor_count, edge_tolerance=edge_tolerance,
+                   init_time_val=init_time_val, deprecation_val=deprecation_val)
 
     ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
     finalize_graph(ending_date, total_graph)
-    store_all_results_json(total_graph, health_values, repo)
+    store_all_results_json(total_graph, health_values, commit_count, actor_count, repo)
 
 
-def traverse_graph(root, graph, total_graph, health_values, edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
+def traverse_graph(root, graph, total_graph, health_values, commit_count, actor_count,
+                   edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
     file_diffs = {}
+    traverse_count = 0
     frontier = PriorityQueue()
     visited = set([])
     frontier.put((graph.node[root]['date'], (root, None)))
     while not frontier.empty():
         curr, parent = frontier.get()[1]
-        do_something(curr, graph, total_graph, parent, health_values, file_diffs, edge_tolerance=edge_tolerance,
-                     init_time_val=init_time_val, deprecation_val=deprecation_val)
+        traverse_count += 1
+        do_something(curr, graph, total_graph, parent, health_values, file_diffs, commit_count, actor_count,
+                     edge_tolerance=edge_tolerance, init_time_val=init_time_val, deprecation_val=deprecation_val)
         if curr not in visited:
             visited.add(curr)
             for child in graph[curr]:
@@ -117,8 +122,8 @@ def traverse_graph(root, graph, total_graph, health_values, edge_tolerance=0.5, 
                     frontier.put((graph.node[child]['date'], (child, curr)))
 
 
-def do_something(root, tree, total_graph, parent, health_values, file_diffs, edge_tolerance=0.5, init_time_val=5,
-                 deprecation_val=1):
+def do_something(root, tree, total_graph, parent, health_values, file_diffs, commit_count, actor_count,
+                 edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
     update_actors(tree, total_graph, root)
     date = tree.node[root]['date']
     date = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
@@ -130,11 +135,12 @@ def do_something(root, tree, total_graph, parent, health_values, file_diffs, edg
         for edge in total_graph[node]:
             importance += total_graph[node][edge]['weight']
         total_graph.node[node]['importance'][date] = importance
-    print "*"*40
-    print date
-    for node in total_graph.nodes():
-        print "Email:", total_graph.node[node]['name'], "Importance:", total_graph.node[node]['importance'][date]
     health_values.append((date, nx.estrada_index(total_graph)))
+    actor_count.append((date, len(total_graph)))
+    if len(commit_count) > 0:
+        commit_count.append((date, commit_count[-1][1] + 1))
+    else:
+        commit_count.append((date, 1))
 
 
 def update_actors(tree, actors, root):
@@ -168,7 +174,7 @@ def update_edge(actors, child, parent, tree, file_diffs, edge_tolerance=0.5, ini
             if author != parent_author:
                 weight = weak_interactions[author] * 0.1
             else:
-                weight = weak_interactions[author] * 0.1 + + strong_interactions * 0.5
+                weight = weak_interactions[author] * 0.1 + strong_interactions * 0.5
             update_weight_values(weight, to_update_with, parent_author, child_author, actors,
                                  edge_tolerance=edge_tolerance)
 
@@ -266,10 +272,12 @@ def finalize_graph(end_date, actors):
             actors[edge[1]][edge[0]]['end'].append(end_date)
 
 
-def store_all_results_json(total_graph, health_values, repo):
+def store_all_results_json(total_graph, health_values, commit_count, actor_count, repo):
     from networkx.readwrite import json_graph
     import json
     total_graph.graph['health'] = health_values
+    total_graph.graph['commits'] = commit_count
+    total_graph.graph['actors'] = actor_count
     data = json_graph.node_link_data(total_graph)
     with open('./data/' + repo + ':actors', 'w') as f:
         json.dump(data, f)

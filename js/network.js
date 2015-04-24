@@ -7,7 +7,6 @@ var time_range;
 var stored_edge_data;
 var stored_node_data;
 
-var count = 0;
 var animationStep = 100;
 var animation_delay = 100;
 
@@ -96,9 +95,15 @@ function process_nodes(svg, data, time) {
         .attr("fill", function(d) {var temp = color(importances[data.indexOf(d)]);
             return temp;});
 
+
+    var enter_count = 0;
+
     var groups = nodes
         .enter().append('g')
-        .attr('class', 'node')
+        .attr('class', function(d) {
+            enter_count++;
+            return 'node';
+        })
         //.on('mouseover', function (d) {
         //    var node_selection = d3.select(this).style({opacity: '0.8'});
         //    var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
@@ -120,7 +125,7 @@ function process_nodes(svg, data, time) {
         .style("opacity", 0.)
         .remove();
 
-    count = count == 0 ? 0 : nodes[0].length;
+    var count = data.length - enter_count;
 
     //Place for update methods
     groups.append('circle')
@@ -143,7 +148,7 @@ function process_nodes(svg, data, time) {
             return d.y + 6;
         })
         .attr("font-family", "sans-serif")
-        .attr("class", "noselect name2")
+        .attr("class", "name2")
         .attr("font-size", "12px")
         .attr("stroke", "black")
         .attr("stroke-width", "0.5")
@@ -299,5 +304,23 @@ make_graph = function () {
     process_nodes(svg, good_nodes, start_time);
 
     update_force_layout(svg, good_nodes, good_edges, force_layout);
+
+    var table = d3.select("body").select(".stats-table").select("#update");
+
+    table.append("th")
+        .text("Visualization");
+
+    var age = "0 week(s)";
+    var commit_data = commits.filter(function (d) {return d[0] == start_time})[0][1];
+    var actor_data = actors.filter(function (d) {return d[0] == start_time})[0][1];
+    var data = [age, commit_data, actor_data];
+
+    table.selectAll("td")
+        .data(data)
+        .enter()
+        .append("td")
+        .text(function(d) {return d});
+
+
 
 };

@@ -4,6 +4,10 @@
 
 var time_scale;
 var barWidth;
+var actors;
+var commits;
+var health;
+
 
 function make_chart(data, svg) {
 
@@ -51,10 +55,9 @@ function make_chart(data, svg) {
     })]);
 
     barWidth = width_h / data.length;
-
     var bar = svg.selectAll("g")
         .data(data)
-        .enter().append("g");
+        .enter().append("g").attr('class', 'data_point');
 
     bar.append("circle")
         .attr("cy", function (d) {
@@ -106,18 +109,13 @@ function make_chart(data, svg) {
         .attr("y1", 0)
         .attr("y2", height_h);
 
-
-
     var circles = svg.selectAll("circle")[0];
     circles =  circles.sort(function (a, b) {
         return a.cx.baseVal.value - b.cx.baseVal.value});
-    lines.append("line")
-        .attr("x1", 0)
-        .attr("x2", 500)
-        .attr("y1", 250)
-        .attr("y2", 250)
 
-    ;
+    console.log(circles.length);
+    console.log(data.length);
+
     for (var i = 1; i < circles.length; i ++) {
         var x1 = circles[i].cx.baseVal.value;
         var y1 = circles[i].cy.baseVal.value;
@@ -131,14 +129,24 @@ function make_chart(data, svg) {
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1)
     }
-
-
-
 }
 
 var health_chart = function() {
     var svg = d3.select("body").select(".network-health").select('svg');
-    var health = JSON.parse(query_results).graph[0][1];
+    var json_graph = JSON.parse(query_results).graph;
+
+
+    json_graph.forEach( function (d) {
+        if (d[0] == "commits") {
+            commits = d[1];
+        }
+        if (d[0] == "actors") {
+            actors = d[1];
+        }
+        if (d[0] == "health") {
+            health = d[1];
+        }
+    } );
 
     make_chart(health, svg);
 };

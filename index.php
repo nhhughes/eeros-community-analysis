@@ -119,6 +119,22 @@
                     filter_time(0);
                 })
         });
+        $(function() {
+            $( "button.restart" )
+                .button()
+                .click(function( event) {
+                    playing=false;
+                    $("button.pause").attr("disabled", "disabled");
+                    $("button.play").removeAttr("disabled");
+                    clearInterval(id);
+                    $('#slider').slider('value', 0);
+                    filter_time(0);
+                })
+        });
+    </script>
+
+    <script>
+
     </script>
 
     <script>
@@ -170,10 +186,13 @@
                         <svg class="noselect chart"></svg>
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                Metric <span class="caret"></span>
+                                Estrada Index<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Estrada Index</a></li>
+                                <li><a href="javascript:change_menu_items('Estrada Index');">Estrada Index</a></li>
+                                <li><a href="javascript:change_menu_items('Commits');">Commits</a></li>
+                                <li><a href="javascript:change_menu_items('Contributors');">Contributors</a></li>
+                                <li><a href="javascript:change_menu_items('Average Betweenness');">Average Betweenness</a></li>
                             </ul>
                         </div>
 
@@ -187,18 +206,15 @@
                     <div class="panel-heading">
                         <h1 class="text-center">Statistics</h1>
                     </div>
-                    <table class="table">
+                    <table class="table stats-table">
                         <tr>
                             <th></th>
                             <th>Age</th>
                             <th>Number of Commits</th>
                             <th>Number of Contributors</th>
                         </tr>
-                        <tr>
-                            <th>Visualization</th>
-                            <td>Age goes here!</td>
-                            <td>Number of commits goes here!</td>
-                            <td>Number of contributors goes here!</td>
+                        <tr id="update">
+
                         </tr>
                         <tr>
                             <th><?php echo "As of " . date('D, d M Y'); ?></th>
@@ -215,8 +231,8 @@
 
 
 <script>
-    make_graph();
     health_chart();
+    make_graph();
 </script>
 </body>
 
