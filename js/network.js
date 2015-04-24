@@ -69,10 +69,10 @@ function process_nodes(svg, data, time) {
         .enter()
         .append('text')
         .attr("x", function (d) {
-            return d.x + r;
+            return 0
         })
         .attr("y", function (d) {
-            return d.y + r;
+            return 20;
         })
         .attr("font-family", "sans-serif")
         .attr("class", "noselect")
@@ -104,18 +104,24 @@ function process_nodes(svg, data, time) {
             enter_count++;
             return 'node';
         })
-        //.on('mouseover', function (d) {
-        //    var node_selection = d3.select(this).style({opacity: '0.8'});
-        //    var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
-        //    var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
-        //    label.attr('opacity', 1.);
-        //})
-        //.on('mouseout', function (d) {
-        //    var node_selection = d3.select(this).style({opacity: '1.0'});
-        //    var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
-        //    var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
-        //    label.attr('opacity', 0.);
-        //})
+        .on('mouseover', function (d) {
+            var node_selection = d3.select(this);
+            var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
+            var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
+            label
+                .transition()
+                .delay(100)
+                .attr('opacity', 1.);
+        })
+        .on('mouseout', function (d) {
+            var node_selection = d3.select(this);
+            var labels = d3.select("body").select(".network-display").select('svg').select('#labels').selectAll('text');
+            var label = labels.filter(function (l) {return l.name == node_selection.data()[0].name;});
+            label
+                .transition()
+                .delay(100)
+                .attr('opacity', 0.);
+        })
         .call(force_layout.drag());
 
     nodes
@@ -217,7 +223,7 @@ function update_force_layout(svg, nodes, edges, force_object) {
     var edges_selection = svg.selectAll(".link");
     var nodes_selection = svg.selectAll(".node");
     var circles = nodes_selection.selectAll("circle");
-    var labels = svg.select('#labels').selectAll("text");
+
     var texts = nodes_selection.selectAll("text");
 
     force_object.on('tick', function () {
@@ -242,14 +248,6 @@ function update_force_layout(svg, nodes, edges, force_object) {
             })
             .attr('cy', function (d) {
                 return d.y;
-            });
-
-        labels.transition().ease('linear').duration(animationStep)
-            .attr('x', function (d) {
-                return d.x + r;
-            })
-            .attr('y', function (d) {
-                return d.y + r;
             });
 
         texts.transition().ease('linear').duration(animationStep)

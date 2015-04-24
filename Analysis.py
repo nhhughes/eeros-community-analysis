@@ -8,6 +8,7 @@ import time
 from progressbar import ProgressBar
 from progressbar.widgets import Bar
 from Queue import PriorityQueue
+import numpy as np
 
 
 def main():
@@ -53,6 +54,7 @@ def clean_up_commit_tree(tree):
 def get_commit_tree_json(repo):
     import json
     from networkx.readwrite import json_graph
+
     with open('./data/' + repo + ':commits', 'r') as f:
         data = f.read()
         json_data = json.loads(data)
@@ -92,18 +94,19 @@ def process_days(tree, repo, edge_tolerance=0.5, init_time_val=5, deprecation_va
     health_values = []
     commit_count = []
     actor_count = []
+    closeness_values = []
 
     degrees = tree.in_degree()
     root = filter(lambda x: degrees[x] == 0, degrees)[0]
-    traverse_graph(root, tree, total_graph, health_values, commit_count, actor_count, edge_tolerance=edge_tolerance,
-                   init_time_val=init_time_val, deprecation_val=deprecation_val)
+    traverse_graph(root, tree, total_graph, health_values, commit_count, actor_count, closeness_values,
+                   edge_tolerance=edge_tolerance, init_time_val=init_time_val, deprecation_val=deprecation_val)
 
     ending_date = max(map(lambda x: time.mktime(time.strptime(tree.node[x]['date'], "%Y-%m-%dT%H:%M:%SZ")), tree))
     finalize_graph(ending_date, total_graph)
-    store_all_results_json(total_graph, health_values, commit_count, actor_count, repo)
+    store_all_results_json(total_graph, health_values, commit_count, actor_count, closeness_values, repo)
 
 
-def traverse_graph(root, graph, total_graph, health_values, commit_count, actor_count,
+def traverse_graph(root, graph, total_graph, health_values, commit_count, actor_count, closeness_values,
                    edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
     file_diffs = {}
     traverse_count = 0
@@ -114,7 +117,8 @@ def traverse_graph(root, graph, total_graph, health_values, commit_count, actor_
         curr, parent = frontier.get()[1]
         traverse_count += 1
         do_something(curr, graph, total_graph, parent, health_values, file_diffs, commit_count, actor_count,
-                     edge_tolerance=edge_tolerance, init_time_val=init_time_val, deprecation_val=deprecation_val)
+                     closeness_values, edge_tolerance=edge_tolerance, init_time_val=init_time_val,
+                     deprecation_val=deprecation_val)
         if curr not in visited:
             visited.add(curr)
             for child in graph[curr]:
@@ -123,7 +127,7 @@ def traverse_graph(root, graph, total_graph, health_values, commit_count, actor_
 
 
 def do_something(root, tree, total_graph, parent, health_values, file_diffs, commit_count, actor_count,
-                 edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
+                 closeness_values, edge_tolerance=0.5, init_time_val=5, deprecation_val=1):
     update_actors(tree, total_graph, root)
     date = tree.node[root]['date']
     date = time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ"))
@@ -136,6 +140,7 @@ def do_something(root, tree, total_graph, parent, health_values, file_diffs, com
             importance += total_graph[node][edge]['weight']
         total_graph.node[node]['importance'][date] = importance
     health_values.append((date, nx.estrada_index(total_graph)))
+    closeness_values.append((date, np.mean(nx.closeness_centrality(total_graph).values())))
     actor_count.append((date, len(total_graph)))
     if len(commit_count) > 0:
         commit_count.append((date, commit_count[-1][1] + 1))
@@ -272,12 +277,14 @@ def finalize_graph(end_date, actors):
             actors[edge[1]][edge[0]]['end'].append(end_date)
 
 
-def store_all_results_json(total_graph, health_values, commit_count, actor_count, repo):
+def store_all_results_json(total_graph, health_values, commit_count, actor_count, closeness_values, repo):
     from networkx.readwrite import json_graph
     import json
+
     total_graph.graph['health'] = health_values
     total_graph.graph['commits'] = commit_count
     total_graph.graph['actors'] = actor_count
+    total_graph.graph['closeness'] = closeness_values
     data = json_graph.node_link_data(total_graph)
     with open('./data/' + repo + ':actors', 'w') as f:
         json.dump(data, f)

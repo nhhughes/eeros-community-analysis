@@ -186,7 +186,7 @@
                                 Estrada Index
                             </button>
                             <button type = "button" id="option2" class="btn btn-primary">
-                                Average Betweenness
+                                Average Closeness
                             </button>
                             <button type = "button" id="option3" class="btn btn-primary">
                                 Commits

@@ -7,6 +7,7 @@ var barWidth;
 var actors;
 var commits;
 var health;
+var closeness;
 var margin = {top: 20, right: 30, bottom: 30, left: 40};
 var list;
 
@@ -149,6 +150,9 @@ var health_chart = function() {
         }
         if (d[0] == "health") {
             health = d[1];
+        }
+        if (d[0] == "closeness") {
+            closeness = d[1];
         }
     } );
 

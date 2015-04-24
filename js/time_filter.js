@@ -91,7 +91,7 @@ var change_menu_items = function(new_menu_item) {
         update_health_chart(health, svg, "Estrada Index");
     }
     else if (new_menu_item == "#option2") {
-        update_health_chart(health, svg, "Average Betweenness");
+        update_health_chart(closeness, svg, "Average Closeness");
     }
     else if (new_menu_item == "#option3") {
         update_health_chart(commits, svg, "Commits");
