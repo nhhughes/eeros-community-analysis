@@ -10,7 +10,7 @@ import tempfile
 import shutil
 import os
 import time
-import NetworkxToNeo4j as Converter
+
 from neo4jrestclient.client import GraphDatabase
 import neo4jrestclient.client as client
 from neo4jrestclient.exceptions import NotFoundError
@@ -76,21 +76,33 @@ def get_cloned_repositories(directory):
 
 
 def create_tree_recursively(tree, root):
-    if len(root.parents) != 0:
-        if root not in tree:
-            tree.add_node(root)
-        index = -1
-        for parent in root.parents:
-            if parent not in tree:
-                index = create_tree_recursively(tree, parent)
-            tree.add_edge(parent, root)
-        return index
-    else:
-        tree.add_node(root)
-        return tree.nodes().index(root)
+
+    queue = deque()
+    queue.append(root)
+    visited = set([])
+    index = -1
+    while len(queue) != 0:
+        node = queue.popleft()
+        if node not in visited:
+            visited.add(node)
+            if len(node.parents) != 0:
+                if node not in tree:
+                    tree.add_node(node)
+                for parent in node.parents:
+                    tree.add_edge(parent, node)
+                    if parent not in visited:
+                        queue.append(parent)
+            else:
+                if node in tree:
+                    index = tree.nodes().index(node)
+                else:
+                    tree.add_node(node)
+                    index = len(tree)
+    return index
 
 
 def create_commit_tree_structures_for_forks(repositories):
+
     trees = []
     progress = ProgressBar(widgets=['Creating commit history for forks', Bar()])
     for repository in progress(repositories):
@@ -128,14 +140,21 @@ def update_with_diffs_from_clones(trees):
         visited = set()
         while len(queue) > 0:
             parent = queue.popleft()
-            visited.add(parent)
-            for commit in tree[parent]:
-                if commit not in visited:
-                    if progress.currval < max_val:
-                        progress.update(progress.currval+1)
-                    queue.append(commit)
-                    diff_result = git_handle.diff(parent.hexsha, commit.hexsha)
-                    tree.node[commit]['diff'] = diff_result
+            if parent not in visited:
+                visited.add(parent)
+                if progress.currval < max_val:
+                    progress.update(progress.currval+1)
+                for commit in tree[parent]:
+                    if commit not in visited:
+                        queue.append(commit)
+                        diff_result = ""
+                        try:
+                            diff_result = git_handle.diff(parent.hexsha, commit.hexsha)
+                        except UnicodeDecodeError:
+                            print parent.hexsha, commit.hexsha
+
+                        tree.node[commit]['diff'] = diff_result
+
     progress.finish()
 
 

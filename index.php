@@ -136,7 +136,7 @@
 
     <script>
         var query_results = <?php
-            $result = file_get_contents("./data/eeros-framework:actors");
+            $result = file_get_contents("./data/wpi-suite:actors");
             echo(json_encode($result));
         ?>;
     </script>
