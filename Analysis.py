@@ -3,10 +3,7 @@ __author__ = 'nathan'
 
 import networkx as nx
 import sys
-import re
 import time
-from progressbar import ProgressBar
-from progressbar.widgets import Bar
 from Queue import PriorityQueue
 import numpy as np
 
@@ -29,8 +26,6 @@ def main():
     repo = sys.argv[2]
 
     tree = clean_up_commit_tree(get_commit_tree_json(repo))
-
-    update_commit_tree_with_diffs(tree)
 
     if sys.argv[1] == 'r':
         process_days(tree, repo)
@@ -59,33 +54,6 @@ def get_commit_tree_json(repo):
         data = f.read()
         json_data = json.loads(data)
         return json_graph.node_link_graph(json_data)
-
-
-def update_commit_tree_with_diffs(tree):
-    progress = ProgressBar(widgets=['Processing File Differences', Bar()])
-    for node in tree.nodes():
-        tree.node[node]['diff'] = process_diff(tree.node[node]['diff'])
-
-
-def process_diff(diff_text):
-    p = re.compile('(-{3} .*)\n(\+{3} .*)\n(@{2}.*@{2})')
-    matches = p.findall(diff_text)
-    diff_strings = [make_diff_string(i) for i in matches]
-    return diff_strings
-
-
-def make_diff_string(diff_set):
-    s = ""
-    s += diff_set[0][5:] + ":"
-    s += diff_set[1][5:]
-    changes = diff_set[2]
-    p = re.compile('(\d+),(\d+)')
-    results = p.findall(changes)
-    if len(results) != 2:
-        s += ":0:0:0:0"
-    else:
-        s += ":" + results[0][0] + ":" + results[0][1] + ":" + results[1][0] + ":" + results[1][1]
-    return s
 
 
 def process_days(tree, repo, edge_tolerance=0.5, init_time_val=5, deprecation_val=1):

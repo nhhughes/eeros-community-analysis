@@ -78,6 +78,7 @@
             $( "button.play" )
                 .button()
                 .click(function( event ) { //TODO disable clicking and sliding while playing
+                    $("button.dropdown-toggle").attr("disabled", "disabled");
                     $("button.play").attr("disabled", "disabled");
                     $("button.pause").removeAttr("disabled");
                     playing=true;
@@ -86,6 +87,7 @@
                             var slider_instance = $('#slider');
                             if (slider_instance.slider('value') >= width) {
                                 $("button.pause").attr("disabled", "disabled");
+                                $("button.dropdown-toggle").removeAttr("disabled");
                                 clearInterval(id);
                                 playing=false;
                             }
@@ -101,6 +103,7 @@
             $( "button.pause" )
                 .button()
                 .click(function( event) {
+                    $("button.dropdown-toggle").removeAttr("disabled");
                     playing=false;
                     $("button.pause").attr("disabled", "disabled");
                     $("button.play").removeAttr("disabled");
@@ -131,14 +134,25 @@
                     filter_time(0);
                 })
         });
+
 
     </script>
 
     <script>
-        var query_results = <?php
+        var eeros_results = <?php
+            $result = file_get_contents("./data/eeros-framework:actors");
+            echo(json_encode($result));
+        ?>;
+        var ros_results = <?php
+            $result = file_get_contents("./data/ros:actors");
+            echo(json_encode($result));
+        ?>;
+        var wpi_suite_results = <?php
             $result = file_get_contents("./data/wpi-suite:actors");
             echo(json_encode($result));
         ?>;
+
+        var query_results = eeros_results;
     </script>
 
 
@@ -153,6 +167,16 @@
                         <h1 class="text-center">Community Visualization</h1>
                     </div>
                     <div class ="panel-body">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                Repository<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="javascript:change_repository(1)">eeros-framework</a></li>
+                                <li><a href="javascript:change_repository(2)">ros</a></li>
+                                <li><a href="javascript:change_repository(3)">wpi-suite</a></li>
+                            </ul>
+                        </div>
                         <svg  class="noselect"></svg>
                         <div class="ui-grid-a">
                             <div class="btn-group" role="group" aria-label="...">
@@ -203,7 +227,7 @@
             <div class="col-md-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
-                        <h1 class="text-center">Statistics</h1>
+                        <h1 class="text-center repo_update_name">Statistics for eeros-framework</h1>
                     </div>
                     <table class="table stats-table">
                         <tr>
@@ -213,13 +237,13 @@
                             <th>Number of Contributors</th>
                         </tr>
                         <tr id="update">
-
+                            <th>Visualization</th>
                         </tr>
                         <tr>
                             <th><?php echo "As of " . date('D, d M Y'); ?></th>
-                            <td>Total age</td>
-                            <td>Total commits</td>
-                            <td>Total contributors</td>
+                            <td id="total_age"></td>
+                            <td id="total_commits"></td>
+                            <td id="total_contributors"></td>
                         </tr>
                     </table>
                 </div>
@@ -227,17 +251,14 @@
         </div>
     </div>
 
-
-
 <script>
 
     health_chart();
     make_graph();
 
-    $('#option1').button('toggle');
     current_health_metric = '#option1';
 
-    $("#option1").on('click', function () {
+    $('#option1').button('toggle').on('click', function () {
         var changed = change_menu_items('#option1');
         if (changed) {
             $(current_health_metric).button('toggle');
@@ -270,6 +291,9 @@
         }
     });
 
+    d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
+    d3.select("body").select("#total_contributors").text(stored_node_data.length);
+    d3.select("body").select("#total_commits").text(Object.keys(stored_node_data[0].importance).length);
 
 </script>
 </body>

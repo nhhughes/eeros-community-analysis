@@ -1,3 +1,5 @@
+var current_repo = 1;
+
 var filter_time = function(slider_value) {
     var time = start_time + (slider_value / width * time_range);
 
@@ -105,4 +107,56 @@ var change_menu_items = function(new_menu_item) {
     return true;
 
 
+};
+
+var change_repository = function(menu_item) {
+
+    if (menu_item == 1) {
+        if (current_repo != 1) {
+            query_results = eeros_results;
+            d3.select("body").select(".network-health").select('svg').selectAll("*").remove();
+            health_chart();
+            d3.select("body").select(".network-display").select('svg').selectAll("*").remove();
+            make_graph();
+            current_repo = 1;
+            $('#slider').slider('value', 0);
+            filter_time(0);
+            d3.select("body").select(".repo_update_name").text("Statistics for eeros-framework");
+            d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
+            d3.select("body").select("#total_contributors").text(stored_node_data.length);
+            d3.select("body").select("#total_commits").text(Object.keys(stored_node_data[0].importance).length);
+        }
+    }
+    if (menu_item == 2) {
+        if (current_repo != 2) {
+            query_results = ros_results;
+            d3.select("body").select(".network-health").select('svg').selectAll("*").remove();
+            health_chart();
+            d3.select("body").select(".network-display").select('svg').selectAll("*").remove();
+            make_graph();
+            current_repo = 2;
+            $('#slider').slider('value', 0);
+            filter_time(0);
+            d3.select("body").select(".repo_update_name").text("Statistics for ros");
+            d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
+            d3.select("body").select("#total_contributors").text(stored_node_data.length);
+            d3.select("body").select("#total_commits").text(Object.keys(stored_node_data[0].importance).length);
+        }
+    }
+    if (menu_item == 3) {
+        if (current_repo != 3) {
+            query_results = wpi_suite_results;
+            d3.select("body").select(".network-health").select('svg').selectAll("*").remove();
+            health_chart();
+            d3.select("body").select(".network-display").select('svg').selectAll("*").remove();
+            make_graph();
+            current_repo = 3;
+            $('#slider').slider('value', 0);
+            filter_time(0);
+            d3.select("body").select(".repo_update_name").text("Statistics for wpi-suite");
+            d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
+            d3.select("body").select("#total_contributors").text(stored_node_data.length);
+            d3.select("body").select("#total_commits").text(Object.keys(stored_node_data[0].importance).length);
+        }
+    }
 };

@@ -305,9 +305,6 @@ make_graph = function () {
 
     var table = d3.select("body").select(".stats-table").select("#update");
 
-    table.append("th")
-        .text("Visualization");
-
     var age = "0 week(s)";
     var commit_data = commits.filter(function (d) {return d[0] == start_time})[0][1];
     var actor_data = actors.filter(function (d) {return d[0] == start_time})[0][1];
