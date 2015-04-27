@@ -1,0 +1,60 @@
+\title{Graph Theoretical Analysis of Developer Communities}
+\author{Nathan Hughes}
+\date{\today}
+
+\documentclass[12pt]{article}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This document outlines how the WPI EEROS IQP Analysis Tool generates a network model of developers from a software project's code.
+
+\section{Input Data}
+
+The tool takes the commit tree structure of the main repository associated with a software project and combines it with other forks of the software project, eventually creating a commit tree that contains every commit ever made that's publically available that results from the first commit of the main repository.  
+Once the commit tree is created, it's updated using the all the file differences between consecutive commits.
+
+
+\section{Classification of Interaction}
+
+The actual network is built up using by using file differences between consecutive commits. The commit tree structure is traversed in a modified breadth-first order where tie breaking between commits is done by the commit date.  Each commit's file differences are used to calculate an interaction strength between the current commit and previous commits.  An interaction strength between two developers is given by a weighted sum of the number of strong interactions and weak interactions.  A strong interaction is when two developers edit the same section of code in consecutive commits.  A weak interaction is when two developers edit the same file within a certain timespan.  The interaction strength for a given commit and a given pair of developer is given by:
+
+$$ s_c(u, v) = 0.5 * n_s(u, v) + 0.1 * n_w(u, v) $$
+where $ s_c(u, v)$ is the interaction strength between developer $u$ and developer $v$, $n_s(u,v)$ is the nubmer of interactions between developer $u$ and developer $v$ and $n_w(u,v)$ is the number of interactions between developers $u$ and $v$.  
+
+The strength of a relationship between developer $u$ and $v$ is given by:
+
+$$ s(u, v) = s_c(u, v) + t \left( \sum_{\forall c' \in C | c' < c} \left( s_{c'}(u, v) \right), c \right) $$
+
+where $C$ is the collection of all the commits, and $t(x, y)$ is a function used to decay the value of a relationship over time.
+
+The weight of each edge in a relatinship is given by $s(u, v)$ and edges only exist between $u$ and $v$ when $s(u, v) > 0.5$.  
+
+
+\section{Analysis of Developer Network}
+
+Using the network of developers, it is possible to derive the estrada index and average closeness of the the network.
+
+To calculate the estrada index, we first calculate the communicability of the developer network.  This is given by:
+
+$$ G = \mathrm{e}^{w} $$ where $w$ is the weighted adjacency matrix of the graph.
+
+The estrada index is calculated as follows:
+
+$$ ln \left( \sum_{v \in V} G_{vv} \right) $$ where $V$ is the set of all the developers
+
+To calculate the average closeness, we first calculate the closeness for each developer, which is given by:
+
+$$ g(u) = \frac{1}{\sum_{v \in V} d(u, v)} $$ where $d(u, v)$ is the distance between developers $u$ and $v$ where the distance of each edge is the inverse of it's weight.  
+
+The average closenesss is then given by:
+
+$$ \frac{\sum_{v \in V} g(v)}{|V|} $$
+
+
+
+
+
+\end{document}
