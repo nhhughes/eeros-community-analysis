@@ -293,7 +293,7 @@
 
     d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
     d3.select("body").select("#total_contributors").text(stored_node_data.length);
-    d3.select("body").select("#total_commits").text(Object.keys(commits.length);
+    d3.select("body").select("#total_commits").text(commits.length);
 
 </script>
 </body>
