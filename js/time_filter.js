@@ -124,7 +124,7 @@ var change_repository = function(menu_item) {
             d3.select("body").select(".repo_update_name").text("Statistics for eeros-framework");
             d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
             d3.select("body").select("#total_contributors").text(stored_node_data.length);
-            d3.select("body").select("#total_commits").text(Object.keys(stored_node_data[0].importance).length);
+            d3.select("body").select("#total_commits").text(commits.length);
         }
     }
     if (menu_item == 2) {
@@ -140,7 +140,7 @@ var change_repository = function(menu_item) {
             d3.select("body").select(".repo_update_name").text("Statistics for ros");
             d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
             d3.select("body").select("#total_contributors").text(stored_node_data.length);
-            d3.select("body").select("#total_commits").text(Object.keys(stored_node_data[0].importance).length);
+            d3.select("body").select("#total_commits").text(commits.length);
         }
     }
     if (menu_item == 3) {
@@ -156,7 +156,8 @@ var change_repository = function(menu_item) {
             d3.select("body").select(".repo_update_name").text("Statistics for wpi-suite");
             d3.select("body").select("#total_age").text(Math.floor((end_time-start_time)/604800) + " week(s)");
             d3.select("body").select("#total_contributors").text(stored_node_data.length);
-            d3.select("body").select("#total_commits").text(Object.keys(stored_node_data[0].importance).length);
+            d3.select("body").select("#total_commits").text(commits.length);
+            console.log(commits.length);
         }
     }
 };
